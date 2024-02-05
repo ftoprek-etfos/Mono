@@ -148,7 +148,14 @@ namespace MonoPraksaDay1.Classes
                             break;
                         case 3:
                             Console.Clear();
-                            astronaut.ContactGroundControl(astronaut);
+                            Random rand = new Random();
+                            if (rand.Next(0, 2) != 0)
+                            {
+                                astronaut.ContactGroundControl(astronaut);
+                            }else
+                            {
+                                astronaut.ContactGroundControl();
+                            }
                             break;
                         case 4:
                             Console.Clear();

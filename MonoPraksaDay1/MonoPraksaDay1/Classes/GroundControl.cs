@@ -15,5 +15,12 @@ namespace MonoPraksaDay1.Classes
             Console.WriteLine("...module suffered a....");
             Console.WriteLine("........");
         }
+        
+        public void Contact()
+        {
+            Console.WriteLine("Floating in space...");
+            Console.WriteLine("...freezing space....");
+            Console.WriteLine("........");
+        }
     }
 }

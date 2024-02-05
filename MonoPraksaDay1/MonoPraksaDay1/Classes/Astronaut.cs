@@ -36,6 +36,12 @@ namespace MonoPraksaDay1.Classes
             groundControl.Contact(astronaut);
         }
 
+        public void ContactGroundControl()
+        {
+            GroundControl groundControl = new GroundControl();
+            groundControl.Contact();
+        }
+
         public void LookOutside()
         {
             Console.WriteLine("As you gaze at the moon's hidden face, " +
