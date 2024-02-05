@@ -57,6 +57,7 @@ namespace MonoPraksaDay1.Classes
         {
             while(true)
             {
+                if (crewList.Count == 0) return;
                 foreach(Astronaut crewMember in crewList)
                 {
                     Console.WriteLine($"{crewList.IndexOf(crewMember)}. {crewMember.FirstName} {crewMember.LastName} ({crewMember.ReturnAge()})");

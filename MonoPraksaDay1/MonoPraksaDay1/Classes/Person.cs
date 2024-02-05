@@ -8,10 +8,10 @@ namespace MonoPraksaDay1.Classes
 {
     abstract class Person
     {
-        public string FirstName {  get; set; }
-        public string LastName { get; set; }
-        private int Age { get; set; }
-        private string Proffesion { get; set; }
+        public abstract string FirstName {  get; set; }
+        public abstract string LastName { get; set; }
+        public abstract int Age { get; set; }
+        public abstract string Proffesion { get; set; }
 
         public Person(string firstName, string lastName, int age, string proffesion)
         {
@@ -21,19 +21,10 @@ namespace MonoPraksaDay1.Classes
             Proffesion = proffesion;
         }
 
-        public virtual void PrintFullInfo()
-        {
-            Console.WriteLine($"My name is {FirstName} {LastName}");
-        }
+        public abstract void PrintFullInfo();
 
-        public int ReturnAge()
-        {
-            return Age;
-        }
+        public abstract int ReturnAge();
 
-        public virtual string ReturnProffesion()
-        {
-            return Proffesion;
-        }
+        public abstract string ReturnProffesion();
     }
 }

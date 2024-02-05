@@ -12,7 +12,11 @@ namespace MonoPraksaDay1.Classes
     {
         private int Rank {  get; set; }
         public bool IsDead { get; set; } = false;
-        
+        public override string FirstName { get; set; }
+        public override string LastName { get; set; }
+        public override int Age { get; set; }
+        public override string Proffesion { get; set; }
+
         Inventory inventory = new Inventory();
 
         public Astronaut(string firstName, string lastName, int age, string proffesion, int rank) : base(firstName, lastName, age, proffesion)
@@ -69,6 +73,11 @@ namespace MonoPraksaDay1.Classes
         public Inventory ReturnInventory()
         {
             return inventory;
+        }
+
+        public override int ReturnAge()
+        {
+            return Age;
         }
     }
 }
