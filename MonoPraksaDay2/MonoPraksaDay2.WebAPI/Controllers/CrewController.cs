@@ -29,20 +29,8 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 
             List<CrewmateViewModel> toFilterList = crewList;
 
-            if (!string.IsNullOrEmpty(firstName))
-            {
-                toFilterList.Where(crewmate => crewmate.FirstName == firstName).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(lastName))
-            {
-                toFilterList.Where(crewmate => crewmate.LastName == lastName).ToList();
-            }
-
-            if (age > 0)
-            {
-                toFilterList = toFilterList.Where(crewmate => crewmate.Age == age).ToList();
-            }
+            toFilterList = toFilterList.Where(crewmate => ((string.IsNullOrEmpty(firstName) || crewmate.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase))
+                && (crewmate.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase)) && (crewmate.Age == age))).ToList();
 
             List<GetCrewmateViewModel> getFilteredCrewmateList = new List<GetCrewmateViewModel>();
             foreach (CrewmateViewModel crewMember in toFilterList)
@@ -63,10 +51,10 @@ namespace MonoPraksaDay2.WebAPI.Controllers
         {
             if (crewList.Count == 0)
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Crewmate list is empty!");
-            if(crewList.Where(crewMember => crewMember.Id == id).FirstOrDefault() == null)
+            if(crewList.FirstOrDefault(crewMember => crewMember.Id == id) == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found under id {id}");
 
-            CrewmateViewModel userToFilter = crewList.Where(crewMember => crewMember.Id == id).FirstOrDefault();
+            CrewmateViewModel userToFilter = crewList.FirstOrDefault(crewMember => crewMember.Id == id);
             GetCrewmateViewModel filteredUser = new GetCrewmateViewModel(userToFilter.FirstName, userToFilter.LastName, userToFilter.Age);
 
             return Request.CreateResponse(HttpStatusCode.OK, filteredUser);
@@ -91,23 +79,25 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide an edit to the crewmate");
 
-            int index = 0;
+            CrewmateViewModel toEdit = null;
 
-            if (crewList.Where(crewMember => crewMember.Id == id).FirstOrDefault() != null)
+            if (crewList.FirstOrDefault(crewMember => crewMember.Id == id) != null)
             {
-                index = crewList.FindIndex(crewMember => crewMember.Id == id);
-                crewList[index].LastMission = crewmate.LastMission;
+                toEdit = crewList.Find(crewMember => crewMember.Id == id);
+                toEdit.LastMission = crewmate.LastMission;
                 foreach (ExperienceViewModel experience in crewmate.ExperienceList)
                 {
-                    if (crewList[index].ExperienceList == null)
-                        crewList[index].ExperienceList = new List<ExperienceViewModel>();
-                    crewList[index].ExperienceList.Add(experience);
+                    if (toEdit.ExperienceList == null)
+                    {
+                        toEdit.ExperienceList = new List<ExperienceViewModel>();
+                    }
+                    toEdit.ExperienceList.Add(experience);
                 }
 
             }
             else
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide an edit to the crewmate");
-            return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate {crewList[index].FirstName} edited successfully");
+            return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate {toEdit.FirstName} edited successfully");
         }
 
 
@@ -117,10 +107,9 @@ namespace MonoPraksaDay2.WebAPI.Controllers
         {
             if (id > crewList.Max(crewmate => crewmate.Id))
                 return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found under id {id}");
-            if (crewList.Where(crewMember => crewMember.Id == id).FirstOrDefault() != null)
+            if (crewList.FirstOrDefault(crewMember => crewMember.Id == id) != null)
             {
-                int index = crewList.FindIndex(crewMember => crewMember.Id == id);
-                crewList.RemoveAt(index);
+                crewList.Remove(crewList.Find(crewMember => crewMember.Id == id));
             }
             else
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide a crewmate to delete");
