@@ -7,8 +7,15 @@ namespace MonoPraksaDay2.WebAPI.Models
 {
     public class ExperienceViewModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Title { get; set; }
-        public int Duration { get; set; }
+        public int? Duration { get; set; }
+
+        public ExperienceViewModel(Guid id, string title, int? duration)
+        {
+            Id = id;
+            Title = title;
+            Duration = duration;
+        }
     }
 }
