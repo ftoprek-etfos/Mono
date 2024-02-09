@@ -1,6 +1,7 @@
 ﻿using MonoPraksaDay2.WebAPI.Help;
 using MonoPraksaDay2.WebAPI.Models;
 using Npgsql;
+using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +24,13 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             {
                 NpgsqlCommand command = new NpgsqlCommand();
                 command.Connection = connection;
-                command.CommandText = "SELECT * FROM \"Crewmate\" LEFT JOIN \"LastMission\" ON \"LastMission\".\"Id\" = \"Crewmate\".\"LastMissionId\"";
-
+                command.CommandText = "SELECT * FROM \"Crewmate\" LEFT JOIN \"LastMission\" ON \"LastMission\".\"Id\" = \"Crewmate\".\"LastMissionId\" WHERE " +
+                                                 "(@firstName IS NULL OR \"FirstName\" LIKE @firstName) AND " +
+                                                 "(@lastName IS NULL OR \"LastName\" LIKE @lastName) AND " +
+                                                 "(@age = 0 OR \"Age\" = @age)"; 
+                command.Parameters.AddWithValue("firstName", NpgsqlDbType.Varchar, (object)firstName ?? DBNull.Value);
+                command.Parameters.AddWithValue("lastName", NpgsqlDbType.Varchar, (object)lastName ?? DBNull.Value);
+                command.Parameters.AddWithValue("age", NpgsqlDbType.Integer, age);
                 connection.Open();
                 NpgsqlDataReader reader = command.ExecuteReader();
 
@@ -88,14 +94,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
                 command.Parameters.AddWithValue("fname", crewmate.FirstName);
                 command.Parameters.AddWithValue("lname", crewmate.LastName);
                 command.Parameters.AddWithValue("age", crewmate.Age);
-
-                if(crewmate.LastMission == null)
-                {
-                    command.Parameters.AddWithValue("lastMission", DBNull.Value);
-                }else
-                {
-                    command.Parameters.AddWithValue("lastMission", crewmate.LastMission);
-                }
+                command.Parameters.AddWithValue("lastMission", crewmate.LastMission.Id);
 
                 connection.Open();
 
@@ -132,21 +131,24 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 
                 Guid lastMissionId = Guid.NewGuid();
 
-                if(toEdit.LastMission.Name != crewmate.LastMission.Name)
+                if(toEdit.LastMission != null)
                 { 
-                    command.CommandText = "INSERT INTO \"LastMission\" (\"Id\",\"Name\",\"Duration\") VALUES (@id, @name, @duration)";
-                    command.Parameters.AddWithValue("id", lastMissionId);
-                    command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
-                    command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
+                    if(toEdit.LastMission.Name != crewmate.LastMission.Name)
+                    {
+                        command.CommandText = "INSERT INTO \"LastMission\" (\"Id\",\"Name\",\"Duration\") VALUES (@id, @name, @duration)";
+                        command.Parameters.AddWithValue("id", lastMissionId);
+                        command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
+                        command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
 
-                    command.ExecuteNonQuery();
+                        command.ExecuteNonQuery();
 
-                    command = new NpgsqlCommand();
-                    command.Connection = connection;
-                    command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
-                    command.Parameters.AddWithValue("id", id);
-                    command.Parameters.AddWithValue("lastMissionId", lastMissionId);
-                    command.ExecuteNonQuery();
+                        command = new NpgsqlCommand();
+                        command.Connection = connection;
+                        command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
+                        command.Parameters.AddWithValue("id", id);
+                        command.Parameters.AddWithValue("lastMissionId", lastMissionId);
+                        command.ExecuteNonQuery();
+                    }
                 }
 
                 List<ExperienceViewModel> experienceList = Helper.GetExperienceListById(id, connString);
@@ -205,6 +207,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             connection.Open();
             command.ExecuteNonQuery();
             connection.Close();
+            connection.Dispose();
 
             return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate deleted successfully");
         }
