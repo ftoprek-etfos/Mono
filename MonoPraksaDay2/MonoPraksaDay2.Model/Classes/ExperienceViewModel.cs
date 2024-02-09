@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using Model.Common;
 
-namespace MonoPraksaDay2.WebAPI.Models
+namespace MonoPraksaDay2.Model
 {
-    public class ExperienceViewModel
+    public class ExperienceViewModel : IExperienceViewModel
     {
         public Guid Id { get; set; }
         public string Title { get; set; }

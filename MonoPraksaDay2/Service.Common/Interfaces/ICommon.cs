@@ -1,9 +1,6 @@
-﻿using MonoPraksaDay2.WebAPI.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MonoPraksaDay2.Model;
 
 namespace Service.Interfaces
 {

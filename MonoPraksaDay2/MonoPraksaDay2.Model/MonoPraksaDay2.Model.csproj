@@ -49,8 +49,13 @@
     <Compile Include="Classes\CrewmateViewModel.cs" />
     <Compile Include="Classes\ExperienceViewModel.cs" />
     <Compile Include="Classes\LastMissionViewModel.cs" />
-    <Compile Include="Interfaces\ICommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Model.Common\Model.Common.csproj">
+      <Project>{f1b83536-f6a7-4a5e-a891-a480efcf00d5}</Project>
+      <Name>Model.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

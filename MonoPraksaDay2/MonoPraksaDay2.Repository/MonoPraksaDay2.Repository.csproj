@@ -95,13 +95,16 @@
   <ItemGroup>
     <Compile Include="Classes\CrewmateRepository.cs" />
     <Compile Include="Classes\Helper.cs" />
-    <Compile Include="Interfaces\ICommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoPraksaDay2.Model\MonoPraksaDay2.Model.csproj">
       <Project>{8128d3a3-f7b3-458f-a4d9-e3ee75b9bafd}</Project>
       <Name>MonoPraksaDay2.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Repository.Common\Repository.Common.csproj">
+      <Project>{12d5de3b-9387-4535-84ae-d66271bcf7f6}</Project>
+      <Name>Repository.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

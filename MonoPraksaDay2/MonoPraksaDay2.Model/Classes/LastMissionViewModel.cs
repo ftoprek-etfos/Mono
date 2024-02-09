@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Model.Common;
 
-namespace MonoPraksaDay2.WebAPI.Models
+namespace MonoPraksaDay2.Model
 {
-    public class LastMissionViewModel
+    public class LastMissionViewModel : ILastMissionViewModel
     {
         public int Id { get; set; }
         public string Name { get; set; }

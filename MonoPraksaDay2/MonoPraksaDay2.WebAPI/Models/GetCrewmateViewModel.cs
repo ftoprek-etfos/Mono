@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using MonoPraksaDay2.Model;
 
 namespace MonoPraksaDay2.WebAPI.Models
 {

@@ -1,5 +1,5 @@
 ﻿using MonoPraksaDay2.Repository;
-using MonoPraksaDay2.WebAPI.Models;
+using MonoPraksaDay2.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;

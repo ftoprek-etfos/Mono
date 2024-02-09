@@ -1,11 +1,11 @@
-﻿using MonoPraksaDay2.WebAPI.Models;
-using Npgsql;
+﻿using MonoPraksaDay2.Model;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace MonoPraksaDay2.Repository
+namespace Repository.Common
 {
-    internal interface ICommon
+    public interface ICommon
     {
         public CrewmateViewModel GetCrewmateById(Guid id);
         public List<CrewmateViewModel> GetCrewmates(string firstName = null, string lastName = null, int age = 0);

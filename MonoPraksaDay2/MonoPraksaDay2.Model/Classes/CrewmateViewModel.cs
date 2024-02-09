@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Model.Common;
 
-namespace MonoPraksaDay2.WebAPI.Models
+namespace MonoPraksaDay2.Model
 {
-    public class CrewmateViewModel
+    public class CrewmateViewModel : ICrewmateViewModel
     {
         [Required]
         public Guid Id { get; set; }
@@ -15,7 +16,6 @@ namespace MonoPraksaDay2.WebAPI.Models
         public LastMissionViewModel? LastMission { get; set; } = default;
 #nullable disable
         public List<ExperienceViewModel> ExperienceList { get; set; }
-
         public CrewmateViewModel(Guid id, string  firstName, string lastName, int age, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
         {
             Id = id;
@@ -32,6 +32,14 @@ namespace MonoPraksaDay2.WebAPI.Models
             LastName = lastName;
             Age = age;
         }
+
+        public CrewmateViewModel(Guid id, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
+        {
+            this.Id = id;
+            this.LastMission = lastMission;
+            this.ExperienceList = experienceList;
+        }
+
 
         public override string ToString()
         {

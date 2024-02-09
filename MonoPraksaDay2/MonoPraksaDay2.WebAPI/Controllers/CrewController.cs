@@ -1,6 +1,5 @@
-﻿using MonoPraksaDay2.WebAPI.Models;
-using Npgsql;
-using NpgsqlTypes;
+﻿using MonoPraksaDay2.Model;
+using MonoPraksaDay2.WebAPI.Models;
 using Service;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 {
     public class CrewController : ApiController
     {
-        // GET: api/Crew
+        // GET: api/Crew    
         [HttpGet]
         public HttpResponseMessage GetCrewList(string firstName = null, string lastName = null, int age = 0)
         {
@@ -88,7 +87,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide an edit to the crewmate");
 
-            CrewmateViewModel toEditCrewmate = new CrewmateViewModel(id, null, null, 0, crewmate.LastMission, crewmate.ExperienceList);
+            CrewmateViewModel toEditCrewmate = new CrewmateViewModel(id, crewmate.LastMission, crewmate.ExperienceList);
 
             CrewmateService crewmateService = new CrewmateService();
 

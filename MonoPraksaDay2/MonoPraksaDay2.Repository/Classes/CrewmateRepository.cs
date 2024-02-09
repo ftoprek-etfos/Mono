@@ -1,5 +1,5 @@
 ﻿using MonoPraksaDay2.Repository.Classes;
-using MonoPraksaDay2.WebAPI.Models;
+using MonoPraksaDay2.Model;
 using Npgsql;
 using NpgsqlTypes;
 using System;
@@ -9,12 +9,13 @@ using System.Net;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
+using Repository.Common;
 
 namespace MonoPraksaDay2.Repository
 {
     public class CrewmateRepository : ICommon
     {
-        static string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
+        static readonly string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
         public CrewmateViewModel GetCrewmateById(Guid id)
         {
             if (id == null)
