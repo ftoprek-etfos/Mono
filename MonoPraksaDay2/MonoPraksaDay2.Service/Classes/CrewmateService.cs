@@ -11,34 +11,34 @@ namespace Service
     public class CrewmateService
     {
 
-        public CrewmateViewModel GetCrewmateById(Guid id)
+        public async Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id)
         {
             CrewmateRepository crewmateRepository = new CrewmateRepository();
-            return crewmateRepository.GetCrewmateById(id);
+            return await crewmateRepository.GetCrewmateByIdAsync(id);
         }
 
-        public List<CrewmateViewModel> GetCrewmates(string firstName = null, string lastName = null, int age = 0)
+        public Task<List<CrewmateViewModel>> GetCrewmatesAsync(string firstName = null, string lastName = null, int age = 0)
         {
             CrewmateRepository crewmateRepository = new CrewmateRepository();
-            return crewmateRepository.GetCrewmates(firstName, lastName, age);
+            return crewmateRepository.GetCrewmatesAsync(firstName, lastName, age);
         }
 
-        public int PutCrewmate(Guid id, CrewmateViewModel crewmate)
+        public async Task<int> PutCrewmateAsync(Guid id, CrewmateViewModel crewmate)
         {
             CrewmateRepository crewmateRepository = new CrewmateRepository();
-            return crewmateRepository.PutCrewmate(id, crewmate);
+            return await crewmateRepository.PutCrewmateAsync(id, crewmate);
         }
 
-        public int DeleteCrewmate(Guid id)
+        public async Task<int> DeleteCrewmateAsync(Guid id)
         {
             CrewmateRepository crewmateRepository = new CrewmateRepository();
-            return crewmateRepository.DeleteCrewmate(id);
+            return await crewmateRepository.DeleteCrewmateAsync(id);
         }
 
-        public int PostCrewmate(CrewmateViewModel crewmate)
+        public Task<int> PostCrewmateAsync(CrewmateViewModel crewmate)
         {
             CrewmateRepository crewmateRepository = new CrewmateRepository();
-            return crewmateRepository.PostCrewmate(crewmate);
+            return crewmateRepository.PostCrewmateAsync(crewmate);
         }
     }
 }

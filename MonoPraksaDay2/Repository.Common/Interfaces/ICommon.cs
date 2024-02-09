@@ -7,11 +7,11 @@ namespace Repository.Common
 {
     public interface ICommon
     {
-        public CrewmateViewModel GetCrewmateById(Guid id);
-        public List<CrewmateViewModel> GetCrewmates(string firstName = null, string lastName = null, int age = 0);
-        public int PutCrewmate(Guid id, CrewmateViewModel crewmate);
-        public int DeleteCrewmate(Guid id);
-        public int PostCrewmate(CrewmateViewModel crewmate);
+        public Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id);
+        public Task<List<CrewmateViewModel>> GetCrewmatesAsync(string firstName = null, string lastName = null, int age = 0);
+        public Task<int> PutCrewmateAsync(Guid id, CrewmateViewModel crewmate);
+        public Task<int> DeleteCrewmateAsync(Guid id);
+        public Task<int> PostCrewmateAsync(CrewmateViewModel crewmate);
 
     }
 }

@@ -16,7 +16,7 @@ namespace MonoPraksaDay2.Repository
     public class CrewmateRepository : ICommon
     {
         static readonly string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
-        public CrewmateViewModel GetCrewmateById(Guid id)
+        public async Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id)
         {
             if (id == null)
                 return null;
@@ -31,7 +31,7 @@ namespace MonoPraksaDay2.Repository
                 command.Parameters.AddWithValue("id", id);
 
                 connection.Open();
-                NpgsqlDataReader reader = command.ExecuteReader();
+                NpgsqlDataReader reader = await command.ExecuteReaderAsync();
 
                 if (!reader.HasRows)
                 {
@@ -40,15 +40,15 @@ namespace MonoPraksaDay2.Repository
                     return null;
                 }
                 CrewmateViewModel crewmateToReturn = null;
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     crewmateToReturn = new CrewmateViewModel(
                         (Guid)reader["id"],
                         (string)reader["FirstName"],
                         (string)reader["LastName"],
                         (int)reader["Age"],
-                        reader["LastMissionId"] == DBNull.Value ? null : Helper.GetLastMissionById((Guid)reader["LastMissionId"], connString),
-                        Helper.GetExperienceListById((Guid)reader["Id"], connString)
+                        reader["LastMissionId"] == DBNull.Value ? null : await Helper.GetLastMissionByIdAsync((Guid)reader["LastMissionId"], connString),
+                        await Helper.GetExperienceListByIdAsync((Guid)reader["Id"], connString)
                         );
                 }
                 connection.Close();
@@ -64,7 +64,7 @@ namespace MonoPraksaDay2.Repository
             }            
         }
 
-        public List<CrewmateViewModel> GetCrewmates(string firstName = null, string lastName = null, int age = 0)
+        public async Task<List<CrewmateViewModel>> GetCrewmatesAsync(string firstName = null, string lastName = null, int age = 0)
         {
             NpgsqlConnection connection = new NpgsqlConnection(connString);
 
@@ -82,7 +82,7 @@ namespace MonoPraksaDay2.Repository
                     command.Parameters.AddWithValue("lastName", NpgsqlDbType.Varchar, (object)lastName ?? DBNull.Value);
                     command.Parameters.AddWithValue("age", NpgsqlDbType.Integer, age);
                     connection.Open();
-                    NpgsqlDataReader reader = command.ExecuteReader();
+                    NpgsqlDataReader reader = await command.ExecuteReaderAsync();
 
                     if (!reader.HasRows)
                     {
@@ -102,7 +102,7 @@ namespace MonoPraksaDay2.Repository
                             (string)reader["LastName"],
                             (int)reader["Age"],
                             lastMission,
-                            Helper.GetExperienceListById((Guid)reader["Id"], connString)
+                            await Helper.GetExperienceListByIdAsync((Guid)reader["Id"], connString)
                         ));
                     }
 
@@ -116,9 +116,9 @@ namespace MonoPraksaDay2.Repository
             }
         }
 
-        public int PutCrewmate(Guid id, CrewmateViewModel crewmate)
+        public async Task<int> PutCrewmateAsync(Guid id, CrewmateViewModel crewmate)
         {
-            CrewmateViewModel toEdit = GetCrewmateById(id);
+            CrewmateViewModel toEdit = await GetCrewmateByIdAsync(id);
 
             if (toEdit == null)
                 return 0;
@@ -157,12 +157,12 @@ namespace MonoPraksaDay2.Repository
                         }
                     }
 
-                    List<ExperienceViewModel> experienceList = Helper.GetExperienceListById(id, connString);
+                    List<ExperienceViewModel> experienceList = await Helper.GetExperienceListByIdAsync(id, connString);
                     if (experienceList == null)
                     {
                         foreach (ExperienceViewModel experience in crewmate.ExperienceList)
                         {
-                            Helper.InsertExperience(connection, id, experience);
+                            await Helper.InsertExperienceAsync(connection, id, experience);
                         }
 
                         connection.Close();
@@ -182,12 +182,12 @@ namespace MonoPraksaDay2.Repository
                             command.Parameters.AddWithValue("id", experience.Id);
                             command.Parameters.AddWithValue("duration", matchingExperience.Duration);
 
-                            command.ExecuteNonQuery();
+                            await command.ExecuteNonQueryAsync();
 
                         }
                         else if (experience.Title != matchingExperience.Title && experience.Duration != matchingExperience.Duration)
                         {
-                            Helper.InsertExperience(connection, id, matchingExperience);
+                            await Helper.InsertExperienceAsync(connection, id, matchingExperience);
                         }
                     }
                     npgsqlTransaction.Commit();
@@ -206,9 +206,9 @@ namespace MonoPraksaDay2.Repository
             }
         }
 
-        public int DeleteCrewmate(Guid id)
+        public async Task<int> DeleteCrewmateAsync(Guid id)
         {
-            CrewmateViewModel crewmateToDelete = GetCrewmateById(id);
+            CrewmateViewModel crewmateToDelete = await GetCrewmateByIdAsync(id);
 
             if (crewmateToDelete == null)
                 return 0;
@@ -225,7 +225,7 @@ namespace MonoPraksaDay2.Repository
                     command.Parameters.AddWithValue("id", id);
 
                     connection.Open();
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                     connection.Close();
                 }
             }catch(Exception ex)
@@ -238,7 +238,7 @@ namespace MonoPraksaDay2.Repository
             return 1;
         }
 
-        public int PostCrewmate(CrewmateViewModel crewmate)
+        public async Task<int> PostCrewmateAsync(CrewmateViewModel crewmate)
         {
             NpgsqlConnection connection = new NpgsqlConnection(connString);
             try
@@ -258,7 +258,7 @@ namespace MonoPraksaDay2.Repository
 
                     connection.Open();
 
-                    if (command.ExecuteNonQuery() <= 0)
+                    if (await command.ExecuteNonQueryAsync() <= 0)
                     {
                         connection.Close();
                         return 0;

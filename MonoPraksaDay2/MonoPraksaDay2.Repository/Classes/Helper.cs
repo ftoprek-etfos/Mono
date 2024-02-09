@@ -11,7 +11,7 @@ namespace MonoPraksaDay2.Repository.Classes
     public static class Helper
     {
 
-        public static List<ExperienceViewModel> GetExperienceListById(Guid id, string connString)
+        public async static Task<List<ExperienceViewModel>> GetExperienceListByIdAsync(Guid id, string connString)
         {
             if (id == null)
                 return null;
@@ -24,7 +24,7 @@ namespace MonoPraksaDay2.Repository.Classes
             command.Parameters.AddWithValue("id", id);
 
             connection.Open();
-            NpgsqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (!reader.HasRows)
             {
@@ -45,7 +45,7 @@ namespace MonoPraksaDay2.Repository.Classes
             return experienceListToReturn;
         }
 
-        public static LastMissionViewModel GetLastMissionById(Guid id, string connString)
+        public async static Task<LastMissionViewModel> GetLastMissionByIdAsync(Guid id, string connString)
         {
             if (id == null)
                 return null;
@@ -58,7 +58,7 @@ namespace MonoPraksaDay2.Repository.Classes
             command.Parameters.AddWithValue("id", id);
 
             connection.Open();
-            NpgsqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (!reader.HasRows)
             {
@@ -66,7 +66,7 @@ namespace MonoPraksaDay2.Repository.Classes
                 return null;
             }
             LastMissionViewModel lastMissionToReturn = null;
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 lastMissionToReturn = new LastMissionViewModel(
                     (string)reader["Name"],
@@ -76,7 +76,7 @@ namespace MonoPraksaDay2.Repository.Classes
             return lastMissionToReturn;
         }
 
-        public static void InsertExperience(NpgsqlConnection connection, Guid crewmateId, ExperienceViewModel experience)
+        public async static Task InsertExperienceAsync(NpgsqlConnection connection, Guid crewmateId, ExperienceViewModel experience)
         {
             Guid experienceId = Guid.NewGuid();
             NpgsqlCommand command = new NpgsqlCommand();
@@ -88,7 +88,7 @@ namespace MonoPraksaDay2.Repository.Classes
             command.Parameters.AddWithValue("duration", experience.Duration);
             command.Parameters.AddWithValue("crewmateId", crewmateId);
 
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
     }
 }
