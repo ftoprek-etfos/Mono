@@ -215,10 +215,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Help\Helper.cs" />
-    <Compile Include="Models\CrewmateViewModel.cs" />
-    <Compile Include="Models\ExperienceViewModel.cs" />
     <Compile Include="Models\GetCrewmateViewModel.cs" />
-    <Compile Include="Models\LastMissionViewModel.cs" />
     <Compile Include="Models\PostCrewmateViewModel.cs" />
     <Compile Include="Models\PutCrewmateViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -372,6 +369,16 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.4.1.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoPraksaDay2.Model\MonoPraksaDay2.Model.csproj">
+      <Project>{8128d3a3-f7b3-458f-a4d9-e3ee75b9bafd}</Project>
+      <Name>MonoPraksaDay2.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Service\MonoPraksaDay2.Service.csproj">
+      <Project>{1439dfe0-47ff-42e6-a32a-6d4860550560}</Project>
+      <Name>MonoPraksaDay2.Service</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

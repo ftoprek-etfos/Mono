@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 
 namespace MonoPraksaDay2.WebAPI.Models
 {
     public class CrewmateViewModel
     {
-        private Guid guid;
-        private string v1;
-        private string v2;
-        private int v3;
-        private object value;
-
         [Required]
         public Guid Id { get; set; }
         public string FirstName { get; set; }
@@ -32,6 +24,13 @@ namespace MonoPraksaDay2.WebAPI.Models
             Age = age;
             LastMission = lastMission;
             ExperienceList = experienceList;
+        }
+
+        public CrewmateViewModel(string firstName, string lastName, int age)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            Age = age;
         }
 
         public override string ToString()

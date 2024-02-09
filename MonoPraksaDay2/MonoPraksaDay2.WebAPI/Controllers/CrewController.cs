@@ -2,74 +2,56 @@
 using MonoPraksaDay2.WebAPI.Models;
 using Npgsql;
 using NpgsqlTypes;
+using Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Results;
 
 namespace MonoPraksaDay2.WebAPI.Controllers
 {
     public class CrewController : ApiController
     {
-        static string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
-
         // GET: api/Crew
         [HttpGet]
         public HttpResponseMessage GetCrewList(string firstName = null, string lastName = null, int age = 0)
         {
-            NpgsqlConnection connection = new NpgsqlConnection(connString);
-            using (connection)
+            CrewmateService crewmateService = new CrewmateService();
+            List<CrewmateViewModel> crewmateList = crewmateService.GetCrewmates(firstName, lastName, age);
+
+            if(crewmateList == null)
+                return Request.CreateResponse(HttpStatusCode.NotFound, "No crewmates found!");
+
+            List<GetCrewmateViewModel> getCrewmateList = new List<GetCrewmateViewModel>();
+            foreach(CrewmateViewModel crewmate in crewmateList)
             {
-                NpgsqlCommand command = new NpgsqlCommand();
-                command.Connection = connection;
-                command.CommandText = "SELECT * FROM \"Crewmate\" LEFT JOIN \"LastMission\" ON \"LastMission\".\"Id\" = \"Crewmate\".\"LastMissionId\" WHERE " +
-                                                 "(@firstName IS NULL OR \"FirstName\" LIKE @firstName) AND " +
-                                                 "(@lastName IS NULL OR \"LastName\" LIKE @lastName) AND " +
-                                                 "(@age = 0 OR \"Age\" = @age)"; 
-                command.Parameters.AddWithValue("firstName", NpgsqlDbType.Varchar, (object)firstName ?? DBNull.Value);
-                command.Parameters.AddWithValue("lastName", NpgsqlDbType.Varchar, (object)lastName ?? DBNull.Value);
-                command.Parameters.AddWithValue("age", NpgsqlDbType.Integer, age);
-                connection.Open();
-                NpgsqlDataReader reader = command.ExecuteReader();
-
-                if (!reader.HasRows)
-                {
-                    connection.Close();
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "No crewmates found!");
-                }
-
-                List<CrewmateViewModel> crewList = new List<CrewmateViewModel>();
-
-                while (reader.Read())
-                {
-                    LastMissionViewModel lastMission = new LastMissionViewModel((string)reader["Name"], (int)reader["Duration"]);
-
-                    crewList.Add(new CrewmateViewModel(
-                        (Guid)reader["Id"], 
-                        (string)reader["FirstName"], 
-                        (string)reader["LastName"], 
-                        (int)reader["Age"],
-                        lastMission,
-                        Helper.GetExperienceListById((Guid)reader["Id"], connString)
+                getCrewmateList.Add(new GetCrewmateViewModel(
+                    crewmate.FirstName,
+                    crewmate.LastName,
+                    crewmate.Age,
+                    crewmate.LastMission,
+                    crewmate.ExperienceList
                     ));
-                }
-
-                List<GetCrewmateViewModel> filteredCrewmateList = Helper.GetFilteredList(crewList, firstName, lastName, age);
-
-                return Request.CreateResponse(HttpStatusCode.OK, filteredCrewmateList);
             }
+
+            return Request.CreateResponse(HttpStatusCode.OK, getCrewmateList);
         }
 
         // GET: api/Crew/1
         [HttpGet]
         public HttpResponseMessage GetCrewmate(Guid id)
         {
-            GetCrewmateViewModel getCrewmate = Helper.GetCrewmateById(id, connString);
+            CrewmateService crewmateService = new CrewmateService();
 
-            if (getCrewmate == null)
+            CrewmateViewModel crewmate = crewmateService.GetCrewmateById(id);
+
+            if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found under id {id}!");
+
+            GetCrewmateViewModel getCrewmate = new GetCrewmateViewModel(crewmate.FirstName, crewmate.LastName, crewmate.Age, crewmate.LastMission, crewmate.ExperienceList);
 
             return Request.CreateResponse(HttpStatusCode.OK, getCrewmate);
         }
@@ -82,31 +64,22 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide data for a crewmate");
 
-            NpgsqlConnection connection = new NpgsqlConnection(connString);
-            using (connection)
+            CrewmateViewModel crewmateToCreate = new CrewmateViewModel(crewmate.FirstName, crewmate.LastName, crewmate.Age);
+
+            CrewmateService crewmateService = new CrewmateService();
+
+            int result = crewmateService.PostCrewmate(crewmateToCreate);
+
+            switch (result)
             {
-                Guid id = Guid.NewGuid();
-
-                NpgsqlCommand command = new NpgsqlCommand();
-                command.Connection = connection;
-                command.CommandText = $"INSERT INTO \"Crewmate\" (\"Id\",\"FirstName\",\"LastName\",\"Age\",\"LastMissionId\") VALUES (@id, @fname, @lname, @age, @lastMission)";
-                command.Parameters.AddWithValue("id", id);
-                command.Parameters.AddWithValue("fname", crewmate.FirstName);
-                command.Parameters.AddWithValue("lname", crewmate.LastName);
-                command.Parameters.AddWithValue("age", crewmate.Age);
-                command.Parameters.AddWithValue("lastMission", crewmate.LastMission.Id);
-
-                connection.Open();
-
-                if(command.ExecuteNonQuery() <= 0)
-                {
-                    connection.Close();
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Failed to add a new crewmate {crewmate.FirstName}");
-                }
-
-                connection.Close();
+                case 0:
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Crewmate was not created!");
+                case 1:
+                    return Request.CreateResponse(HttpStatusCode.OK, $"Added a new crewmate {crewmate.FirstName}");
+                default:
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Error creating a crewmate");
             }
-            return Request.CreateResponse(HttpStatusCode.OK, $"Added a new crewmate {crewmate.FirstName}");
+
         }
         
         // PUT: api/Crew/id
@@ -116,100 +89,40 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide an edit to the crewmate");
 
-            GetCrewmateViewModel toEdit = Helper.GetCrewmateById(id,connString);
-            
-            if (toEdit == null)
-                return Request.CreateResponse(HttpStatusCode.BadRequest, $"Crewmate not found.");
+            CrewmateViewModel toEditCrewmate = new CrewmateViewModel(id, null, null, 0, crewmate.LastMission, crewmate.ExperienceList);
 
-            NpgsqlConnection connection = new NpgsqlConnection(connString);
-            using (connection)
+            CrewmateService crewmateService = new CrewmateService();
+
+            int result = crewmateService.PutCrewmate(id, toEditCrewmate);
+
+            switch (result)
             {
-                NpgsqlCommand command = new NpgsqlCommand();
-                command.Connection = connection;
-
-                connection.Open();
-
-                Guid lastMissionId = Guid.NewGuid();
-
-                if(toEdit.LastMission != null)
-                { 
-                    if(toEdit.LastMission.Name != crewmate.LastMission.Name)
-                    {
-                        command.CommandText = "INSERT INTO \"LastMission\" (\"Id\",\"Name\",\"Duration\") VALUES (@id, @name, @duration)";
-                        command.Parameters.AddWithValue("id", lastMissionId);
-                        command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
-                        command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
-
-                        command.ExecuteNonQuery();
-
-                        command = new NpgsqlCommand();
-                        command.Connection = connection;
-                        command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
-                        command.Parameters.AddWithValue("id", id);
-                        command.Parameters.AddWithValue("lastMissionId", lastMissionId);
-                        command.ExecuteNonQuery();
-                    }
-                }
-
-                List<ExperienceViewModel> experienceList = Helper.GetExperienceListById(id, connString);
-                if(experienceList == null)
-                {
-                    foreach(ExperienceViewModel experience in crewmate.ExperienceList)
-                    {
-                        Helper.InsertExperience(connection, id, experience);
-                    }
-
-                    connection.Close();
-                    return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate {toEdit.FirstName} edited successfully");
-                }
-
-                foreach (ExperienceViewModel experience in experienceList)
-                {
-                    var matchingExperience = crewmate.ExperienceList.FirstOrDefault(exp => exp.Title == experience.Title);
-
-                    if(experience.Title == matchingExperience.Title && experience.Duration != matchingExperience.Duration)
-                    {
-                        command = new NpgsqlCommand();
-                        command.Connection = connection;
-                        command.CommandText = "UPDATE \"Experience\" SET \"Duration\" = @duration WHERE \"Experience\".\"Id\" = @id";
-
-                        command.Parameters.AddWithValue("id", experience.Id);
-                        command.Parameters.AddWithValue("duration", experience.Duration);
-
-                        command.ExecuteNonQuery();
-
-                    }else if(experience.Title != matchingExperience.Title && experience.Duration != matchingExperience.Duration)
-                    {
-                        Helper.InsertExperience(connection, id, experience);
-                    }
-                }
-                connection.Close();
+                case 0:
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, $"Crewmate to edit not found");
+                case 1:
+                    return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate edited successfully");
+                default:
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Error editing a crewmate");
             }
-            return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate {toEdit.FirstName} edited successfully");
         }
 
         // DELETE: api/Crew/id
         [HttpDelete]
-        public HttpResponseMessage DeleteCrewmate(Guid? id)
+        public HttpResponseMessage DeleteCrewmate(Guid id)
         {
-            GetCrewmateViewModel crewmateToDelete = Helper.GetCrewmateById(id, connString);
+            CrewmateService crewmateService = new CrewmateService();
 
-            if(crewmateToDelete == null )
-                return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found under id {id}");
+            int result = crewmateService.DeleteCrewmate(id);
 
-            NpgsqlConnection connection = new NpgsqlConnection(connString);
-
-            NpgsqlCommand command = new NpgsqlCommand();
-            command.Connection = connection;
-            command.CommandText = "DELETE FROM \"Crewmate\" WHERE \"Crewmate\".\"Id\" = @id";
-            command.Parameters.AddWithValue("id", id);
-
-            connection.Open();
-            command.ExecuteNonQuery();
-            connection.Close();
-            connection.Dispose();
-
-            return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate deleted successfully");
+            switch (result)
+            {
+                case 0:
+                    return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found");
+                case 1:
+                    return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate deleted successfully");
+                default:
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Error deleting a crewmate");
+            }
         }
     }
 }
