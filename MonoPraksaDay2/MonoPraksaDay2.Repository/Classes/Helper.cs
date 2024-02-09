@@ -1,4 +1,4 @@
-﻿using MonoPraksaDay2.WebAPI.Models;
+﻿using MonoPraksaDay2.Model;
 using Npgsql;
 using System;
 using System.Collections.Generic;
