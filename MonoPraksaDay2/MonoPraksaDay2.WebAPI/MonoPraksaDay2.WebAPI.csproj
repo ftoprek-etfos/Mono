@@ -374,7 +374,7 @@
       <Project>{8128d3a3-f7b3-458f-a4d9-e3ee75b9bafd}</Project>
       <Name>MonoPraksaDay2.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Service\MonoPraksaDay2.Service.csproj">
+    <ProjectReference Include="..\MonoPraksaDay2.Service\MonoPraksaDay2.Service.csproj">
       <Project>{1439dfe0-47ff-42e6-a32a-6d4860550560}</Project>
       <Name>MonoPraksaDay2.Service</Name>
     </ProjectReference>

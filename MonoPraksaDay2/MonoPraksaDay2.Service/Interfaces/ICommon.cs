@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Service.Interfaces
 {
-    internal interface IServiceCommon
+    internal interface ICommon
     {
         public CrewmateViewModel GetCrewmateById(Guid id);
         public List<CrewmateViewModel> GetCrewmates(string firstName = null, string lastName = null, int age = 0);

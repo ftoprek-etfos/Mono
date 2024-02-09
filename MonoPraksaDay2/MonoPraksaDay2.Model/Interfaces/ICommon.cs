@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MonoPraksaDay2.Model.Interfaces
 {
-    internal interface IModelCommon
+    internal interface ICommon
     {
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace MonoPraksaDay2.Repository
 {
-    internal interface IRepositoryCommon
+    internal interface ICommon
     {
         public CrewmateViewModel GetCrewmateById(Guid id);
         public List<CrewmateViewModel> GetCrewmates(string firstName = null, string lastName = null, int age = 0);

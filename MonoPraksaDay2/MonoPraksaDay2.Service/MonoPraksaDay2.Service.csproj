@@ -7,8 +7,8 @@
     <ProjectGuid>{1439DFE0-47FF-42E6-A32A-6D4860550560}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Service</RootNamespace>
-    <AssemblyName>Service</AssemblyName>
+    <RootNamespace>MonoPraksaDay2.Service</RootNamespace>
+    <AssemblyName>MonoPraksaDay2.Service</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\CrewmateService.cs" />
-    <Compile Include="Interfaces\IServiceCommon.cs" />
+    <Compile Include="Interfaces\ICommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MonoPraksaDay2.Repository
 {
-    public class CrewmateRepository : IRepositoryCommon
+    public class CrewmateRepository : ICommon
     {
         static string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
         public CrewmateViewModel GetCrewmateById(Guid id)

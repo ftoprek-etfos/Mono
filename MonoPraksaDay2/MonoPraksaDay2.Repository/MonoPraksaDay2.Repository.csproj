@@ -95,7 +95,7 @@
   <ItemGroup>
     <Compile Include="Classes\CrewmateRepository.cs" />
     <Compile Include="Classes\Helper.cs" />
-    <Compile Include="Interfaces\IRepositoryCommon.cs" />
+    <Compile Include="Interfaces\ICommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

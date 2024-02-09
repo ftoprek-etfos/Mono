@@ -49,7 +49,7 @@
     <Compile Include="Classes\CrewmateViewModel.cs" />
     <Compile Include="Classes\ExperienceViewModel.cs" />
     <Compile Include="Classes\LastMissionViewModel.cs" />
-    <Compile Include="Interfaces\IModelCommon.cs" />
+    <Compile Include="Interfaces\ICommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
