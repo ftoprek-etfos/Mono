@@ -57,6 +57,14 @@
       <Project>{c977a9b9-1bf3-45c6-9b75-92ff5ca611ed}</Project>
       <Name>MonoPraksaDay2.Repository</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Repository.Common\Repository.Common.csproj">
+      <Project>{12D5DE3B-9387-4535-84AE-D66271BCF7F6}</Project>
+      <Name>Repository.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Service.Common\Service.Common.csproj">
+      <Project>{b8ca88ae-12dd-4905-b280-52978411620a}</Project>
+      <Name>Service.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

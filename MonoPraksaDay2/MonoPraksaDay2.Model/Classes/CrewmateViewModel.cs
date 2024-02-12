@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Model.Common;
 
 namespace MonoPraksaDay2.Model
@@ -13,9 +14,9 @@ namespace MonoPraksaDay2.Model
         public string LastName { get; set; }
         public int Age { get; set; }
 #nullable enable
-        public LastMissionViewModel? LastMission { get; set; } = default;
+        public ILastMissionViewModel? LastMission { get; set; } = default;
 #nullable disable
-        public List<ExperienceViewModel> ExperienceList { get; set; }
+        public List<IExperienceViewModel>? ExperienceList { get; set; } = default;
         public CrewmateViewModel(Guid id, string  firstName, string lastName, int age, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
         {
             Id = id;
@@ -23,7 +24,10 @@ namespace MonoPraksaDay2.Model
             LastName = lastName;
             Age = age;
             LastMission = lastMission;
-            ExperienceList = experienceList;
+            if(experienceList != null)
+                ExperienceList = experienceList.Cast<IExperienceViewModel>().ToList();
+            else
+                ExperienceList = null;
         }
 
         public CrewmateViewModel(string firstName, string lastName, int age)
@@ -37,7 +41,7 @@ namespace MonoPraksaDay2.Model
         {
             this.Id = id;
             this.LastMission = lastMission;
-            this.ExperienceList = experienceList;
+            this.ExperienceList = experienceList.Cast<IExperienceViewModel>().ToList();
         }
 
 

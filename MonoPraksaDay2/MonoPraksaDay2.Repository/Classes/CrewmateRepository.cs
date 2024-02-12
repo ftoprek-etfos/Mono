@@ -10,10 +10,11 @@ using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using Repository.Common;
+using Model.Common;
 
 namespace MonoPraksaDay2.Repository
 {
-    public class CrewmateRepository : ICommon
+    public class CrewmateRepository : IRepositoryCommon
     {
         static readonly string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
         public async Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id)
@@ -94,9 +95,13 @@ namespace MonoPraksaDay2.Repository
 
                     while (reader.Read())
                     {
-                        LastMissionViewModel lastMission = new LastMissionViewModel((string)reader["Name"], (int)reader["Duration"]);
+                        LastMissionViewModel lastMission = null;
+                        if (reader["Name"] != DBNull.Value && reader["Duration"] != DBNull.Value)
+                        {
+                            lastMission = new LastMissionViewModel((string)reader["Name"], (int)reader["Duration"]);
+                        }
 
-                        crewList.Add(new CrewmateViewModel(
+                            crewList.Add(new CrewmateViewModel(
                             (Guid)reader["Id"],
                             (string)reader["FirstName"],
                             (string)reader["LastName"],
@@ -146,15 +151,30 @@ namespace MonoPraksaDay2.Repository
                             command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
                             command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
 
-                            command.ExecuteNonQuery();
+                            await command.ExecuteNonQueryAsync();
 
                             command = new NpgsqlCommand();
                             command.Connection = connection;
                             command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
                             command.Parameters.AddWithValue("id", id);
                             command.Parameters.AddWithValue("lastMissionId", lastMissionId);
-                            command.ExecuteNonQuery();
+                            await command.ExecuteNonQueryAsync();
                         }
+                    }else
+                    {
+                        command.CommandText = "INSERT INTO \"LastMission\" (\"Id\",\"Name\",\"Duration\") VALUES (@id, @name, @duration)";
+                        command.Parameters.AddWithValue("id", lastMissionId);
+                        command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
+                        command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
+
+                        await command.ExecuteNonQueryAsync();
+
+                        command = new NpgsqlCommand();
+                        command.Connection = connection;
+                        command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
+                        command.Parameters.AddWithValue("id", id);
+                        command.Parameters.AddWithValue("lastMissionId", lastMissionId);
+                        await command.ExecuteNonQueryAsync();
                     }
 
                     List<ExperienceViewModel> experienceList = await Helper.GetExperienceListByIdAsync(id, connString);
@@ -164,8 +184,9 @@ namespace MonoPraksaDay2.Repository
                         {
                             await Helper.InsertExperienceAsync(connection, id, experience);
                         }
-
+                        npgsqlTransaction.Commit();
                         connection.Close();
+                        connection.Dispose();
                         return 1;
                     }
 
@@ -254,7 +275,7 @@ namespace MonoPraksaDay2.Repository
                     command.Parameters.AddWithValue("fname", crewmate.FirstName);
                     command.Parameters.AddWithValue("lname", crewmate.LastName);
                     command.Parameters.AddWithValue("age", crewmate.Age);
-                    command.Parameters.AddWithValue("lastMission", crewmate.LastMission.Id);
+                    command.Parameters.AddWithValue("lastMission", DBNull.Value);
 
                     connection.Open();
 

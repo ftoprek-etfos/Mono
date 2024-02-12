@@ -9,5 +9,7 @@ namespace Model.Common
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int Age { get; set; }
+        public ILastMissionViewModel LastMission { get; set; }
+        public List<IExperienceViewModel> ExperienceList { get; set; }
     }
 }

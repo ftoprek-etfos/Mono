@@ -49,6 +49,12 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=6.4.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.6.4.0\lib\netstandard2.0\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.WebApi, Version=6.1.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.WebApi2.6.1.1\lib\net472\Autofac.Integration.WebApi.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -61,6 +67,9 @@
     </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.8.0.0\lib\net462\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -114,9 +123,6 @@
     <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.2.0.1\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http">
     </Reference>
@@ -375,9 +381,21 @@
       <Project>{8128d3a3-f7b3-458f-a4d9-e3ee75b9bafd}</Project>
       <Name>MonoPraksaDay2.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MonoPraksaDay2.Repository\MonoPraksaDay2.Repository.csproj">
+      <Project>{C977A9B9-1BF3-45C6-9B75-92FF5CA611ED}</Project>
+      <Name>MonoPraksaDay2.Repository</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MonoPraksaDay2.Service\MonoPraksaDay2.Service.csproj">
       <Project>{1439dfe0-47ff-42e6-a32a-6d4860550560}</Project>
       <Name>MonoPraksaDay2.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Repository.Common\Repository.Common.csproj">
+      <Project>{12D5DE3B-9387-4535-84AE-D66271BCF7F6}</Project>
+      <Name>Repository.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Service.Common\Service.Common.csproj">
+      <Project>{b8ca88ae-12dd-4905-b280-52978411620a}</Project>
+      <Name>Service.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

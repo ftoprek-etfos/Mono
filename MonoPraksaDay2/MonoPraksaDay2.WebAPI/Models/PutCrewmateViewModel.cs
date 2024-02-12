@@ -1,4 +1,5 @@
-﻿using MonoPraksaDay2.Model;
+﻿using Model.Common;
+using MonoPraksaDay2.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;

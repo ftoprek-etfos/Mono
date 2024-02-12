@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Common
 {
-    public interface ICommon
+    public interface IRepositoryCommon
     {
         public Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id);
         public Task<List<CrewmateViewModel>> GetCrewmatesAsync(string firstName = null, string lastName = null, int age = 0);

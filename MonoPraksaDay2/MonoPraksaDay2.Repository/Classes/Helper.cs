@@ -1,4 +1,5 @@
-﻿using MonoPraksaDay2.Model;
+﻿using Model.Common;
+using MonoPraksaDay2.Model;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace MonoPraksaDay2.Repository.Classes
             return lastMissionToReturn;
         }
 
-        public async static Task InsertExperienceAsync(NpgsqlConnection connection, Guid crewmateId, ExperienceViewModel experience)
+        public async static Task InsertExperienceAsync(NpgsqlConnection connection, Guid crewmateId, IExperienceViewModel experience)
         {
             Guid experienceId = Guid.NewGuid();
             NpgsqlCommand command = new NpgsqlCommand();

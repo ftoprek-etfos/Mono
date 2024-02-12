@@ -9,17 +9,18 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using Service.Common;
 
 namespace MonoPraksaDay2.WebAPI.Controllers
 {
     public class CrewController : ApiController
     {
+        protected IServiceCommon CrewmateService { get; set; }
         // GET: api/Crew    
         [HttpGet]
         public async Task<HttpResponseMessage> GetCrewListAsync(string firstName = null, string lastName = null, int age = 0)
         {
-            CrewmateService crewmateService = new CrewmateService();
-            List<CrewmateViewModel> crewmateList = await crewmateService.GetCrewmatesAsync(firstName, lastName, age);
+            List<CrewmateViewModel> crewmateList = await CrewmateService.GetCrewmatesAsync(firstName, lastName, age);
 
             if(crewmateList == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, "No crewmates found!");
@@ -43,9 +44,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
         [HttpGet]
         public async Task<HttpResponseMessage> GetCrewmate(Guid id)
         {
-            CrewmateService crewmateService = new CrewmateService();
-
-            CrewmateViewModel crewmate = await crewmateService.GetCrewmateByIdAsync(id);
+            CrewmateViewModel crewmate = await CrewmateService.GetCrewmateByIdAsync(id);
 
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found under id {id}!");
@@ -65,9 +64,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 
             CrewmateViewModel crewmateToCreate = new CrewmateViewModel(crewmate.FirstName, crewmate.LastName, crewmate.Age);
 
-            CrewmateService crewmateService = new CrewmateService();
-
-            int result = await crewmateService.PostCrewmateAsync(crewmateToCreate);
+            int result = await CrewmateService.PostCrewmateAsync(crewmateToCreate);
 
             switch (result)
             {
@@ -90,13 +87,11 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 
             CrewmateViewModel toEditCrewmate = new CrewmateViewModel(id, crewmate.LastMission, crewmate.ExperienceList);
 
-            CrewmateService crewmateService = new CrewmateService();
-
-            int result = await crewmateService.PutCrewmateAsync(id, toEditCrewmate);
+            int result = await CrewmateService.PutCrewmateAsync(id, toEditCrewmate);
 
             switch (result)
             {
-                case 0:
+                case 0: 
                     return Request.CreateResponse(HttpStatusCode.BadRequest, $"Crewmate to edit not found");
                 case 1:
                     return Request.CreateResponse(HttpStatusCode.OK, $"Crewmate edited successfully");
@@ -109,9 +104,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
         [HttpDelete]
         public async Task<HttpResponseMessage> DeleteCrewmate(Guid id)
         {
-            CrewmateService crewmateService = new CrewmateService();
-
-            int result = await crewmateService.DeleteCrewmateAsync(id);
+            int result = await CrewmateService.DeleteCrewmateAsync(id);
 
             switch (result)
             {
@@ -122,6 +115,11 @@ namespace MonoPraksaDay2.WebAPI.Controllers
                 default:
                     return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Error deleting a crewmate");
             }
+        }
+
+        public CrewController(IServiceCommon crewService)
+        {
+            CrewmateService = crewService;
         }
     }
 }
