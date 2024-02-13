@@ -7,20 +7,27 @@ using System.Text;
 using System.Threading.Tasks;
 using Service.Common;
 using Repository.Common;
+using MonoPraksaDay2.Common;
 
 namespace Service
 {
     public class CrewmateService : IServiceCommon
     {
         protected IRepositoryCommon CrewmateRepository { get; set; }
+
+        public CrewmateService(IRepositoryCommon repository)
+        {
+            CrewmateRepository = repository;
+        }
+
         public async Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id)
         {
             return await CrewmateRepository.GetCrewmateByIdAsync(id);
         }
 
-        public Task<List<CrewmateViewModel>> GetCrewmatesAsync(string firstName = null, string lastName = null, int age = 0)
+        public Task<List<CrewmateViewModel>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
         {
-            return CrewmateRepository.GetCrewmatesAsync(firstName, lastName, age);
+            return CrewmateRepository.GetCrewmatesAsync(crewmateFilter, paging, sorting);
         }
 
         public async Task<int> PutCrewmateAsync(Guid id, CrewmateViewModel crewmate)
@@ -36,11 +43,6 @@ namespace Service
         public Task<int> PostCrewmateAsync(CrewmateViewModel crewmate)
         {
             return CrewmateRepository.PostCrewmateAsync(crewmate);
-        }
-
-        public CrewmateService(IRepositoryCommon repository)
-        {
-            CrewmateRepository = repository;
         }
     }
 }

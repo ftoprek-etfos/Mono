@@ -1,15 +1,17 @@
 ﻿using Model.Common;
+using System;
 
 namespace MonoPraksaDay2.Model
 {
     public class LastMissionViewModel : ILastMissionViewModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }
 
-        public LastMissionViewModel(string name, int duration)
+        public LastMissionViewModel(Guid Id, string name, int duration)
         {
+            this.Id = Id;
             this.Name = name;
             this.Duration = duration;
         }

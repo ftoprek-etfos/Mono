@@ -10,17 +10,29 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Service.Common;
+using MonoPraksaDay2.Common;
 
 namespace MonoPraksaDay2.WebAPI.Controllers
 {
     public class CrewController : ApiController
     {
         protected IServiceCommon CrewmateService { get; set; }
+
+
+        public CrewController(IServiceCommon crewService)
+        {
+            CrewmateService = crewService;
+        }
         // GET: api/Crew    
         [HttpGet]
-        public async Task<HttpResponseMessage> GetCrewListAsync(string firstName = null, string lastName = null, int age = 0)
+        public async Task<HttpResponseMessage> GetCrewListAsync(string firstName = null, string lastName = null, int age = 0, Guid? lastMissionId = null,
+            int pageSize = 3, int pageNumber = 1, string orderBy = "Age", string sortOrder = "ASC")
         {
-            List<CrewmateViewModel> crewmateList = await CrewmateService.GetCrewmatesAsync(firstName, lastName, age);
+            CrewmateFilter crewmateFilter = new CrewmateFilter(firstName, lastName, age, lastMissionId);
+            Paging paging = new Paging(pageNumber, pageSize);
+            Sorting sorting = new Sorting(orderBy, sortOrder);
+
+            List<CrewmateViewModel> crewmateList = await CrewmateService.GetCrewmatesAsync(crewmateFilter, paging, sorting);
 
             if(crewmateList == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, "No crewmates found!");
@@ -42,7 +54,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 
         // GET: api/Crew/1
         [HttpGet]
-        public async Task<HttpResponseMessage> GetCrewmate(Guid id)
+        public async Task<HttpResponseMessage> GetCrewmateAsync(Guid id)
         {
             CrewmateViewModel crewmate = await CrewmateService.GetCrewmateByIdAsync(id);
 
@@ -57,7 +69,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 
         // POST: api/Crew
         [HttpPost]
-        public async Task<HttpResponseMessage> PostCrewmate(PostCrewmateViewModel crewmate)
+        public async Task<HttpResponseMessage> PostCrewmateAsync(PostCrewmateViewModel crewmate)
         {
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide data for a crewmate");
@@ -80,7 +92,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
         
         // PUT: api/Crew/id
         [HttpPut]
-        public async Task<HttpResponseMessage> PutEditCrewmate(Guid id, [FromBody] PutCrewmateViewModel crewmate)
+        public async Task<HttpResponseMessage> PutEditCrewmateAsync(Guid id, [FromBody] PutCrewmateViewModel crewmate)
         {
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide an edit to the crewmate");
@@ -102,7 +114,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
 
         // DELETE: api/Crew/id
         [HttpDelete]
-        public async Task<HttpResponseMessage> DeleteCrewmate(Guid id)
+        public async Task<HttpResponseMessage> DeleteCrewmateAsync(Guid id)
         {
             int result = await CrewmateService.DeleteCrewmateAsync(id);
 
@@ -115,11 +127,6 @@ namespace MonoPraksaDay2.WebAPI.Controllers
                 default:
                     return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Error deleting a crewmate");
             }
-        }
-
-        public CrewController(IServiceCommon crewService)
-        {
-            CrewmateService = crewService;
         }
     }
 }

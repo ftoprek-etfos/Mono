@@ -373,9 +373,13 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Model.Common\Model.Common.csproj">
+    <ProjectReference Include="..\Model.Common\MonoPraksaDay2.Model.Common.csproj">
       <Project>{F1B83536-F6A7-4A5E-A891-A480EFCF00D5}</Project>
-      <Name>Model.Common</Name>
+      <Name>MonoPraksaDay2.Model.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonoPraksaDay2.Common\MonoPraksaDay2.Common.csproj">
+      <Project>{517ed552-08fc-4386-8136-b4b0fc2da62f}</Project>
+      <Name>MonoPraksaDay2.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\MonoPraksaDay2.Model\MonoPraksaDay2.Model.csproj">
       <Project>{8128d3a3-f7b3-458f-a4d9-e3ee75b9bafd}</Project>
@@ -389,13 +393,13 @@
       <Project>{1439dfe0-47ff-42e6-a32a-6d4860550560}</Project>
       <Name>MonoPraksaDay2.Service</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Repository.Common\Repository.Common.csproj">
+    <ProjectReference Include="..\Repository.Common\MonoPraksaDay2.Repository.Common.csproj">
       <Project>{12D5DE3B-9387-4535-84AE-D66271BCF7F6}</Project>
-      <Name>Repository.Common</Name>
+      <Name>MonoPraksaDay2.Repository.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Service.Common\Service.Common.csproj">
+    <ProjectReference Include="..\Service.Common\MonoPraksaDay2.Service.Common.csproj">
       <Project>{b8ca88ae-12dd-4905-b280-52978411620a}</Project>
-      <Name>Service.Common</Name>
+      <Name>MonoPraksaDay2.Service.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

@@ -1,4 +1,4 @@
-﻿using MonoPraksaDay2.Repository.Classes;
+﻿using MonoPraksaDay2.Repository;
 using MonoPraksaDay2.Model;
 using Npgsql;
 using NpgsqlTypes;
@@ -11,6 +11,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Repository.Common;
 using Model.Common;
+using MonoPraksaDay2.Common;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.Data;
 
 namespace MonoPraksaDay2.Repository
 {
@@ -48,8 +52,8 @@ namespace MonoPraksaDay2.Repository
                         (string)reader["FirstName"],
                         (string)reader["LastName"],
                         (int)reader["Age"],
-                        reader["LastMissionId"] == DBNull.Value ? null : await Helper.GetLastMissionByIdAsync((Guid)reader["LastMissionId"], connString),
-                        await Helper.GetExperienceListByIdAsync((Guid)reader["Id"], connString)
+                        reader["LastMissionId"] == DBNull.Value ? null : await GetLastMissionByIdAsync((Guid)reader["LastMissionId"], connString),
+                        await GetExperienceListByIdAsync((Guid)reader["Id"], connString)
                         );
                 }
                 connection.Close();
@@ -65,7 +69,7 @@ namespace MonoPraksaDay2.Repository
             }            
         }
 
-        public async Task<List<CrewmateViewModel>> GetCrewmatesAsync(string firstName = null, string lastName = null, int age = 0)
+        public async Task<List<CrewmateViewModel>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
         {
             NpgsqlConnection connection = new NpgsqlConnection(connString);
 
@@ -74,15 +78,43 @@ namespace MonoPraksaDay2.Repository
                 using (connection)
                 {
                     NpgsqlCommand command = new NpgsqlCommand();
+                    command.CommandType = CommandType.Text;
                     command.Connection = connection;
-                    command.CommandText = "SELECT * FROM \"Crewmate\" LEFT JOIN \"LastMission\" ON \"LastMission\".\"Id\" = \"Crewmate\".\"LastMissionId\" WHERE " +
-                                                     "(@firstName IS NULL OR \"FirstName\" LIKE @firstName) AND " +
-                                                     "(@lastName IS NULL OR \"LastName\" LIKE @lastName) AND " +
-                                                     "(@age = 0 OR \"Age\" = @age)";
-                    command.Parameters.AddWithValue("firstName", NpgsqlDbType.Varchar, (object)firstName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("lastName", NpgsqlDbType.Varchar, (object)lastName ?? DBNull.Value);
-                    command.Parameters.AddWithValue("age", NpgsqlDbType.Integer, age);
                     connection.Open();
+                    StringBuilder sqlQueryBuilder = new StringBuilder("SELECT * FROM \"Crewmate\" LEFT JOIN \"LastMission\" ON \"LastMission\".\"Id\" = \"Crewmate\".\"LastMissionId\" WHERE 1=1");
+
+                    if (!string.IsNullOrEmpty(crewmateFilter.FirstName))
+                    {
+                        sqlQueryBuilder.Append(" AND \"FirstName\" LIKE @firstName");
+                        command.Parameters.AddWithValue("firstName", NpgsqlDbType.Varchar, crewmateFilter.FirstName);
+                    }
+
+                    if (!string.IsNullOrEmpty(crewmateFilter.LastName))
+                    {
+                        sqlQueryBuilder.Append(" AND \"LastName\" LIKE @lastName");
+                        command.Parameters.AddWithValue("lastName", crewmateFilter.LastName);
+                    }
+
+                    if (crewmateFilter.Age > 0)
+                    {
+                        sqlQueryBuilder.Append(" AND \"Age\" = @age");
+                        command.Parameters.AddWithValue("age", crewmateFilter.Age);
+                    }
+
+                    if (crewmateFilter.LastMissionId != null)
+                    {
+                        sqlQueryBuilder.Append(" AND \"LastMissionId\" = @lastMissionId");
+                        command.Parameters.AddWithValue("lastMissionId", crewmateFilter.LastMissionId);
+                    }
+
+                    sqlQueryBuilder.Append($" ORDER BY \"{sorting.ReturnOrderBy()}\" {(sorting.SortOrder == "ASC" ? sorting.SortOrder : "DESC")} OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY");
+
+                    command.Parameters.AddWithValue("offset", paging.ReturnOffset());
+                    command.Parameters.AddWithValue("pageSize", paging.PageSize);
+
+                    command.CommandText = sqlQueryBuilder.ToString();
+                    await command.PrepareAsync();
+
                     NpgsqlDataReader reader = await command.ExecuteReaderAsync();
 
                     if (!reader.HasRows)
@@ -98,7 +130,7 @@ namespace MonoPraksaDay2.Repository
                         LastMissionViewModel lastMission = null;
                         if (reader["Name"] != DBNull.Value && reader["Duration"] != DBNull.Value)
                         {
-                            lastMission = new LastMissionViewModel((string)reader["Name"], (int)reader["Duration"]);
+                            lastMission = new LastMissionViewModel((Guid)reader["LastMissionId"], (string)reader["Name"], (int)reader["Duration"]);
                         }
 
                             crewList.Add(new CrewmateViewModel(
@@ -107,7 +139,7 @@ namespace MonoPraksaDay2.Repository
                             (string)reader["LastName"],
                             (int)reader["Age"],
                             lastMission,
-                            await Helper.GetExperienceListByIdAsync((Guid)reader["Id"], connString)
+                            await GetExperienceListByIdAsync((Guid)reader["Id"], connString)
                         ));
                     }
 
@@ -152,13 +184,6 @@ namespace MonoPraksaDay2.Repository
                             command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
 
                             await command.ExecuteNonQueryAsync();
-
-                            command = new NpgsqlCommand();
-                            command.Connection = connection;
-                            command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
-                            command.Parameters.AddWithValue("id", id);
-                            command.Parameters.AddWithValue("lastMissionId", lastMissionId);
-                            await command.ExecuteNonQueryAsync();
                         }
                     }else
                     {
@@ -168,21 +193,22 @@ namespace MonoPraksaDay2.Repository
                         command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
 
                         await command.ExecuteNonQueryAsync();
-
-                        command = new NpgsqlCommand();
-                        command.Connection = connection;
-                        command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
-                        command.Parameters.AddWithValue("id", id);
-                        command.Parameters.AddWithValue("lastMissionId", lastMissionId);
-                        await command.ExecuteNonQueryAsync();
                     }
 
-                    List<ExperienceViewModel> experienceList = await Helper.GetExperienceListByIdAsync(id, connString);
+
+                    command = new NpgsqlCommand();
+                    command.Connection = connection;
+                    command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
+                    command.Parameters.AddWithValue("id", id);
+                    command.Parameters.AddWithValue("lastMissionId", lastMissionId);
+                    await command.ExecuteNonQueryAsync();
+
+                    List<ExperienceViewModel> experienceList = await GetExperienceListByIdAsync(id, connString);
                     if (experienceList == null)
                     {
                         foreach (ExperienceViewModel experience in crewmate.ExperienceList)
                         {
-                            await Helper.InsertExperienceAsync(connection, id, experience);
+                            await InsertExperienceAsync(connection, id, experience);
                         }
                         npgsqlTransaction.Commit();
                         connection.Close();
@@ -208,7 +234,7 @@ namespace MonoPraksaDay2.Repository
                         }
                         else if (experience.Title != matchingExperience.Title && experience.Duration != matchingExperience.Duration)
                         {
-                            await Helper.InsertExperienceAsync(connection, id, matchingExperience);
+                            await InsertExperienceAsync(connection, id, matchingExperience);
                         }
                     }
                     npgsqlTransaction.Commit();
@@ -296,6 +322,87 @@ namespace MonoPraksaDay2.Repository
                 return -1;
             }
 
+        }
+
+        async Task<List<ExperienceViewModel>> GetExperienceListByIdAsync(Guid id, string connString)
+        {
+            if (id == null)
+                return null;
+
+            NpgsqlConnection connection = new NpgsqlConnection(connString);
+
+            NpgsqlCommand command = new NpgsqlCommand();
+            command.Connection = connection;
+            command.CommandText = "SELECT * FROM \"Experience\" WHERE \"CrewmateId\" = @id";
+            command.Parameters.AddWithValue("id", id);
+
+            connection.Open();
+            NpgsqlDataReader reader = await command.ExecuteReaderAsync();
+
+            if (!reader.HasRows)
+            {
+                connection.Close();
+                return null;
+            }
+
+            List<ExperienceViewModel> experienceListToReturn = new List<ExperienceViewModel>();
+            while (reader.Read())
+            {
+                experienceListToReturn.Add(new ExperienceViewModel(
+                    (Guid)reader["Id"],
+                    (string)reader["Title"],
+                    (int)reader["Duration"]
+                    ));
+            }
+
+            return experienceListToReturn;
+        }
+
+        async Task<LastMissionViewModel> GetLastMissionByIdAsync(Guid id, string connString)
+        {
+            if (id == null)
+                return null;
+
+            NpgsqlConnection connection = new NpgsqlConnection(connString);
+
+            NpgsqlCommand command = new NpgsqlCommand();
+            command.Connection = connection;
+            command.CommandText = "SELECT * FROM \"LastMission\" WHERE \"LastMission\".\"Id\" = @id";
+            command.Parameters.AddWithValue("id", id);
+
+            connection.Open();
+            NpgsqlDataReader reader = await command.ExecuteReaderAsync();
+
+            if (!reader.HasRows)
+            {
+                connection.Close();
+                return null;
+            }
+            LastMissionViewModel lastMissionToReturn = null;
+            while (await reader.ReadAsync())
+            {
+                lastMissionToReturn = new LastMissionViewModel(
+                    (Guid)reader["Id"],
+                    (string)reader["Name"],
+                    (int)reader["Duration"]
+                    );
+            }
+            return lastMissionToReturn;
+        }
+
+        async Task InsertExperienceAsync(NpgsqlConnection connection, Guid crewmateId, IExperienceViewModel experience)
+        {
+            Guid experienceId = Guid.NewGuid();
+            NpgsqlCommand command = new NpgsqlCommand();
+            command.Connection = connection;
+            command.CommandText = "INSERT INTO \"Experience\" (\"Id\",\"Title\",\"Duration\",\"CrewmateId\") VALUES (@id, @name, @duration, @crewmateId)";
+
+            command.Parameters.AddWithValue("id", experienceId);
+            command.Parameters.AddWithValue("name", experience.Title);
+            command.Parameters.AddWithValue("duration", experience.Duration);
+            command.Parameters.AddWithValue("crewmateId", crewmateId);
+
+            await command.ExecuteNonQueryAsync();
         }
     }
 }

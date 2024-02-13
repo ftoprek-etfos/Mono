@@ -37,6 +37,14 @@ namespace MonoPraksaDay2.Model
             Age = age;
         }
 
+        public CrewmateViewModel(Guid id, string firstName, string lastName, int age)
+        {
+            Id = id;
+            FirstName = firstName;
+            LastName = lastName;
+            Age = age;
+        }
+
         public CrewmateViewModel(Guid id, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
         {
             this.Id = id;
