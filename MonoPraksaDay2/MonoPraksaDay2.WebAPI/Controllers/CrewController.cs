@@ -1,14 +1,11 @@
 ﻿using MonoPraksaDay2.Model;
 using MonoPraksaDay2.WebAPI.Models;
-using Service;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 using Service.Common;
 using MonoPraksaDay2.Common;
 
@@ -25,20 +22,20 @@ namespace MonoPraksaDay2.WebAPI.Controllers
         }
         // GET: api/Crew    
         [HttpGet]
-        public async Task<HttpResponseMessage> GetCrewListAsync(string firstName = null, string lastName = null, int age = 0, Guid? lastMissionId = null,
+        public async Task<HttpResponseMessage> GetCrewListAsync(string firstName = null, string lastName = null, int? age = null, Guid? lastMissionId = null,
             int pageSize = 3, int pageNumber = 1, string orderBy = "Age", string sortOrder = "ASC")
         {
             CrewmateFilter crewmateFilter = new CrewmateFilter(firstName, lastName, age, lastMissionId);
             Paging paging = new Paging(pageNumber, pageSize);
             Sorting sorting = new Sorting(orderBy, sortOrder);
 
-            List<CrewmateViewModel> crewmateList = await CrewmateService.GetCrewmatesAsync(crewmateFilter, paging, sorting);
+            List<Crewmate> crewmateList = await CrewmateService.GetCrewmatesAsync(crewmateFilter, paging, sorting);
 
             if(crewmateList == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, "No crewmates found!");
 
             List<GetCrewmateViewModel> getCrewmateList = new List<GetCrewmateViewModel>();
-            foreach(CrewmateViewModel crewmate in crewmateList)
+            foreach(Crewmate crewmate in crewmateList)
             {
                 getCrewmateList.Add(new GetCrewmateViewModel(
                     crewmate.FirstName,
@@ -56,7 +53,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
         [HttpGet]
         public async Task<HttpResponseMessage> GetCrewmateAsync(Guid id)
         {
-            CrewmateViewModel crewmate = await CrewmateService.GetCrewmateByIdAsync(id);
+            Crewmate crewmate = await CrewmateService.GetCrewmateByIdAsync(id);
 
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found under id {id}!");
@@ -74,7 +71,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide data for a crewmate");
 
-            CrewmateViewModel crewmateToCreate = new CrewmateViewModel(crewmate.FirstName, crewmate.LastName, crewmate.Age);
+            Crewmate crewmateToCreate = new Crewmate(crewmate.FirstName, crewmate.LastName, crewmate.Age);
 
             int result = await CrewmateService.PostCrewmateAsync(crewmateToCreate);
 
@@ -97,7 +94,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.BadRequest, $"Please provide an edit to the crewmate");
 
-            CrewmateViewModel toEditCrewmate = new CrewmateViewModel(id, crewmate.LastMission, crewmate.ExperienceList);
+            Crewmate toEditCrewmate = new Crewmate(id, crewmate.LastMission, crewmate.ExperienceList);
 
             int result = await CrewmateService.PutCrewmateAsync(id, toEditCrewmate);
 

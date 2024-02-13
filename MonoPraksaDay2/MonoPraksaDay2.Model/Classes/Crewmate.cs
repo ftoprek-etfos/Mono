@@ -6,7 +6,7 @@ using Model.Common;
 
 namespace MonoPraksaDay2.Model
 {
-    public class CrewmateViewModel : ICrewmateViewModel
+    public class Crewmate : ICrewmateViewModel
     {
         [Required]
         public Guid Id { get; set; }
@@ -17,7 +17,7 @@ namespace MonoPraksaDay2.Model
         public ILastMissionViewModel? LastMission { get; set; } = default;
 #nullable disable
         public List<IExperienceViewModel>? ExperienceList { get; set; } = default;
-        public CrewmateViewModel(Guid id, string  firstName, string lastName, int age, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
+        public Crewmate(Guid id, string  firstName, string lastName, int age, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
         {
             Id = id;
             FirstName = firstName;
@@ -30,14 +30,14 @@ namespace MonoPraksaDay2.Model
                 ExperienceList = null;
         }
 
-        public CrewmateViewModel(string firstName, string lastName, int age)
+        public Crewmate(string firstName, string lastName, int age)
         {
             FirstName = firstName;
             LastName = lastName;
             Age = age;
         }
 
-        public CrewmateViewModel(Guid id, string firstName, string lastName, int age)
+        public Crewmate(Guid id, string firstName, string lastName, int age)
         {
             Id = id;
             FirstName = firstName;
@@ -45,7 +45,7 @@ namespace MonoPraksaDay2.Model
             Age = age;
         }
 
-        public CrewmateViewModel(Guid id, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
+        public Crewmate(Guid id, LastMissionViewModel lastMission, List<ExperienceViewModel> experienceList)
         {
             this.Id = id;
             this.LastMission = lastMission;

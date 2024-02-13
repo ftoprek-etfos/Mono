@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\CrewmateViewModel.cs" />
+    <Compile Include="Classes\Crewmate.cs" />
     <Compile Include="Classes\ExperienceViewModel.cs" />
     <Compile Include="Classes\LastMissionViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

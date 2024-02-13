@@ -1,19 +1,14 @@
-﻿using MonoPraksaDay2.Repository;
-using MonoPraksaDay2.Model;
+﻿using MonoPraksaDay2.Model;
 using Npgsql;
 using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using Repository.Common;
 using Model.Common;
 using MonoPraksaDay2.Common;
-using System.Data.SqlClient;
-using System.Globalization;
 using System.Data;
 
 namespace MonoPraksaDay2.Repository
@@ -21,7 +16,7 @@ namespace MonoPraksaDay2.Repository
     public class CrewmateRepository : IRepositoryCommon
     {
         static readonly string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
-        public async Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id)
+        public async Task<Crewmate> GetCrewmateByIdAsync(Guid id)
         {
             if (id == null)
                 return null;
@@ -44,10 +39,10 @@ namespace MonoPraksaDay2.Repository
                     connection.Dispose();
                     return null;
                 }
-                CrewmateViewModel crewmateToReturn = null;
+                Crewmate crewmateToReturn = null;
                 while (await reader.ReadAsync())
                 {
-                    crewmateToReturn = new CrewmateViewModel(
+                    crewmateToReturn = new Crewmate(
                         (Guid)reader["id"],
                         (string)reader["FirstName"],
                         (string)reader["LastName"],
@@ -69,7 +64,7 @@ namespace MonoPraksaDay2.Repository
             }            
         }
 
-        public async Task<List<CrewmateViewModel>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
+        public async Task<List<Crewmate>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
         {
             NpgsqlConnection connection = new NpgsqlConnection(connString);
 
@@ -83,28 +78,9 @@ namespace MonoPraksaDay2.Repository
                     connection.Open();
                     StringBuilder sqlQueryBuilder = new StringBuilder("SELECT * FROM \"Crewmate\" LEFT JOIN \"LastMission\" ON \"LastMission\".\"Id\" = \"Crewmate\".\"LastMissionId\" WHERE 1=1");
 
-                    if (!string.IsNullOrEmpty(crewmateFilter.FirstName))
+                   if(crewmateFilter != null)
                     {
-                        sqlQueryBuilder.Append(" AND \"FirstName\" LIKE @firstName");
-                        command.Parameters.AddWithValue("firstName", NpgsqlDbType.Varchar, crewmateFilter.FirstName);
-                    }
-
-                    if (!string.IsNullOrEmpty(crewmateFilter.LastName))
-                    {
-                        sqlQueryBuilder.Append(" AND \"LastName\" LIKE @lastName");
-                        command.Parameters.AddWithValue("lastName", crewmateFilter.LastName);
-                    }
-
-                    if (crewmateFilter.Age > 0)
-                    {
-                        sqlQueryBuilder.Append(" AND \"Age\" = @age");
-                        command.Parameters.AddWithValue("age", crewmateFilter.Age);
-                    }
-
-                    if (crewmateFilter.LastMissionId != null)
-                    {
-                        sqlQueryBuilder.Append(" AND \"LastMissionId\" = @lastMissionId");
-                        command.Parameters.AddWithValue("lastMissionId", crewmateFilter.LastMissionId);
+                        await ApplyFilter(sqlQueryBuilder, command, crewmateFilter);
                     }
 
                     sqlQueryBuilder.Append($" ORDER BY \"{sorting.ReturnOrderBy()}\" {(sorting.SortOrder == "ASC" ? sorting.SortOrder : "DESC")} OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY");
@@ -123,7 +99,7 @@ namespace MonoPraksaDay2.Repository
                         return null;
                     }
 
-                    List<CrewmateViewModel> crewList = new List<CrewmateViewModel>();
+                    List<Crewmate> crewList = new List<Crewmate>();
 
                     while (reader.Read())
                     {
@@ -133,7 +109,7 @@ namespace MonoPraksaDay2.Repository
                             lastMission = new LastMissionViewModel((Guid)reader["LastMissionId"], (string)reader["Name"], (int)reader["Duration"]);
                         }
 
-                            crewList.Add(new CrewmateViewModel(
+                            crewList.Add(new Crewmate(
                             (Guid)reader["Id"],
                             (string)reader["FirstName"],
                             (string)reader["LastName"],
@@ -153,9 +129,9 @@ namespace MonoPraksaDay2.Repository
             }
         }
 
-        public async Task<int> PutCrewmateAsync(Guid id, CrewmateViewModel crewmate)
+        public async Task<int> PutCrewmateAsync(Guid id, Crewmate crewmate)
         {
-            CrewmateViewModel toEdit = await GetCrewmateByIdAsync(id);
+            Crewmate toEdit = await GetCrewmateByIdAsync(id);
 
             if (toEdit == null)
                 return 0;
@@ -255,7 +231,7 @@ namespace MonoPraksaDay2.Repository
 
         public async Task<int> DeleteCrewmateAsync(Guid id)
         {
-            CrewmateViewModel crewmateToDelete = await GetCrewmateByIdAsync(id);
+            Crewmate crewmateToDelete = await GetCrewmateByIdAsync(id);
 
             if (crewmateToDelete == null)
                 return 0;
@@ -285,7 +261,7 @@ namespace MonoPraksaDay2.Repository
             return 1;
         }
 
-        public async Task<int> PostCrewmateAsync(CrewmateViewModel crewmate)
+        public async Task<int> PostCrewmateAsync(Crewmate crewmate)
         {
             NpgsqlConnection connection = new NpgsqlConnection(connString);
             try
@@ -403,6 +379,33 @@ namespace MonoPraksaDay2.Repository
             command.Parameters.AddWithValue("crewmateId", crewmateId);
 
             await command.ExecuteNonQueryAsync();
+        }
+
+        async Task ApplyFilter(StringBuilder sqlQueryBuilder, NpgsqlCommand command, CrewmateFilter crewmateFilter)
+        {
+            if (!string.IsNullOrEmpty(crewmateFilter.FirstName))
+            {
+                sqlQueryBuilder.Append(" AND \"FirstName\" LIKE @firstName");
+                command.Parameters.AddWithValue("firstName", NpgsqlDbType.Varchar, crewmateFilter.FirstName);
+            }
+
+            if (!string.IsNullOrEmpty(crewmateFilter.LastName))
+            {
+                sqlQueryBuilder.Append(" AND \"LastName\" LIKE @lastName");
+                command.Parameters.AddWithValue("lastName", crewmateFilter.LastName);
+            }
+
+            if (crewmateFilter.Age != null)
+            {
+                sqlQueryBuilder.Append(" AND \"Age\" = @age");
+                command.Parameters.AddWithValue("age", crewmateFilter.Age);
+            }
+
+            if (crewmateFilter.LastMissionId != null)
+            {
+                sqlQueryBuilder.Append(" AND \"LastMissionId\" = @lastMissionId");
+                command.Parameters.AddWithValue("lastMissionId", crewmateFilter.LastMissionId);
+            }
         }
     }
 }

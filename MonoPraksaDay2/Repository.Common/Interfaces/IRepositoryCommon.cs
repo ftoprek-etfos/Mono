@@ -8,11 +8,11 @@ namespace Repository.Common
 {
     public interface IRepositoryCommon
     {
-        public Task<CrewmateViewModel> GetCrewmateByIdAsync(Guid id);
-        public Task<List<CrewmateViewModel>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting);
-        public Task<int> PutCrewmateAsync(Guid id, CrewmateViewModel crewmate);
+        public Task<Crewmate> GetCrewmateByIdAsync(Guid id);
+        public Task<List<Crewmate>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting);
+        public Task<int> PutCrewmateAsync(Guid id, Crewmate crewmate);
         public Task<int> DeleteCrewmateAsync(Guid id);
-        public Task<int> PostCrewmateAsync(CrewmateViewModel crewmate);
+        public Task<int> PostCrewmateAsync(Crewmate crewmate);
 
     }
 }
