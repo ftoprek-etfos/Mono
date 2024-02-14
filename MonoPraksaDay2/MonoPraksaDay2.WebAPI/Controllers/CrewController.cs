@@ -15,7 +15,6 @@ namespace MonoPraksaDay2.WebAPI.Controllers
     {
         protected IServiceCommon CrewmateService { get; set; }
 
-
         public CrewController(IServiceCommon crewService)
         {
             CrewmateService = crewService;
