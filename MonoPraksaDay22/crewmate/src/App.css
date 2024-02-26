@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Anta&display=swap');
+#root{
+  display: contents;
+}
+body{
+    background-image: url('https://cdn.pixabay.com/photo/2023/01/25/21/19/moon-7744608_1280.png');
+    background-repeat: repeat-y;
+    background-size: cover;
+    color:#E2D989;
+    font-family: "Anta", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0; 
+}
+
+table tr:nth-child(odd){background-color: #32055B;}
+
+table tr:hover {background-color: #654B7C;}
+
+table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+  background-color: #32055B;
+  color: #E2D989;
+}
+
+table td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    color: #FFF6D5;
+    
+}
+
+.center{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(80, 60, 145, 0.815);
+    border-radius: 2%;  
+    gap: 10px;
+    width: 30%;
+}
+
+.Button h2{
+    font-size: small;
+    font-weight: 400;
+}
+
+h2{
+    text-align: center;
+}
+
+.Button{
+    text-decoration: none;
+    color: #F8E5A3;
+}
+
+.Button:hover{
+    opacity: 0.5;
+    cursor:pointer;
+}
+
+.center form{
+    margin:0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.center form input{
+    margin-bottom: 20px;
+}
+
+#statusText{
+    margin: 0px;
+    margin-top: -10px;
+}
+
