@@ -3,7 +3,7 @@ import StatusText from './StatusText';
 import Table from './Table';
 import { useState } from 'react';
 import AddCrewmateForm from './AddCrewmateForm';
-import EditCrewmateForm from './EditCrewmateForm';
+import EditCrewmateFormClass from './EditCrewmateFormClass';
 import {v4 as uuidv4} from 'uuid';
 
 export default function MainContainer() {
@@ -31,7 +31,7 @@ export default function MainContainer() {
         );
       case 'edit':
         return (
-            <EditCrewmateForm setContext={setContext} crewmateToEdit={crewmateToEdit} applyEditCrewmate={applyEditCrewmate} setCrewmateToEdit={setCrewmateToEdit}/>
+            <EditCrewmateFormClass setContext={setContext} crewmateToEdit={crewmateToEdit} applyEditCrewmate={applyEditCrewmate} setCrewmateToEdit={setCrewmateToEdit}/>
             );
       default:
         return null;
