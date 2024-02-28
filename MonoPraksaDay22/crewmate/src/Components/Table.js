@@ -14,8 +14,6 @@ export default function Table({ crewmates, setCrewmates, editCrewmate, setStatus
             setStatus("");
           }, 2000);
     }
-    console.log(crewmates)
-
     return (
         crewmates.length > 0 ? (
         <table className="crewmateList">

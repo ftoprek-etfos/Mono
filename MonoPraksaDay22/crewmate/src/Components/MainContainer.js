@@ -16,12 +16,11 @@ export default function MainContainer() {
   const [status, setStatus] = useState("");
   const [sorting, setSorting] = useState({orderBy: "Age", sortOrder: "ASC"});
   const [filters, setFilters] = useState({firstName: "", lastName: "", age: ""});
-  const [pageNumber, setPageNumber] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [paging, setPaging] = useState({pageNumber: 1, totalPages: 1, pageSize: 3});
   const [showFIlters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    let url = `https://localhost:44334/api/Crew?pageNumber=${pageNumber}&orderBy=${sorting.orderBy}&sortOrder=${sorting.sortOrder}`;
+    let url = `https://localhost:44334/api/Crew?pageNumber=${paging.pageNumber}&pageSize=${paging.pageSize}&orderBy=${sorting.orderBy}&sortOrder=${sorting.sortOrder}`;
     if(filters.firstName !== "") url += `&firstName=${filters.firstName}`;
     if(filters.lastName !== "") url += `&lastName=${filters.lastName}`;
     if(filters.age !== "") url += `&age=${filters.age}`;
@@ -29,7 +28,7 @@ export default function MainContainer() {
       try{
         await axios.get(url).then((response) => {
           setCrewmates(response.data.list);
-          setTotalPages(response.data.pageCount);
+          setPaging({...paging, totalPages: response.data.pageCount});
         });
       }catch(e){
         console.warn(e)
@@ -40,16 +39,19 @@ export default function MainContainer() {
       fetchData();
     }, 500);
     return () => clearTimeout(delaySearch);
-  }, [status, pageNumber, sorting, filters]);
+  }, [status, paging.pageNumber, paging.pageSize, sorting, filters]);
 
   function nextPage() {
-    if(totalPages === pageNumber) return;
-    setPageNumber(pageNumber + 1);
+    if(paging.totalPages === paging.pageNumber) return;
+    setPaging({...paging, pageNumber: paging.pageNumber + 1});
   }
+  const handlePageSizeChange = (event) => {
+    setPaging({...paging, pageSize: event.target.value});
+  };
 
   function previousPage(){
-    if(pageNumber === 1) return;
-    setPageNumber(pageNumber - 1);
+    if(paging.pageNumber === 1) return;
+    setPaging({...paging, pageNumber: paging.pageNumber - 1});
   }
   const handleSortTypeChange = (event) => {
     setSorting({...sorting, orderBy: event.target.value});
@@ -96,8 +98,17 @@ export default function MainContainer() {
                   </select>
                 </div>}
                 {isShowing && <Table crewmates={crewmates} setCrewmates={setCrewmates} editCrewmate={editCrewmate} setStatus={setStatus}/>}
-                {isShowing &&  totalPages !== pageNumber && <ReactButton variant="info" onClick={nextPage}>Next</ReactButton>}
-                {pageNumber > 1 && <ReactButton variant="secondary" onClick={previousPage}>Previous</ReactButton>}
+                {isShowing &&  paging.totalPages !== paging.pageNumber && <ReactButton variant="info" onClick={nextPage}>Next</ReactButton>}
+                {paging.pageNumber > 1 && <ReactButton variant="secondary" onClick={previousPage}>Previous</ReactButton>}
+                {isShowing &&  <div style={{display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'flex-start'}}>  
+                <p>Page {paging.pageNumber} of {paging.totalPages}</p>               
+                <select name="pageSize" id="pageSize" onChange={handlePageSizeChange}>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                  </select>
+                  </div>
+                }
                 <Button text="Show crewmates" onClick={() => setShowing(true)}/>
                 <Button text="Add crewmates" onClick={() => setContext("add")}/>
             </>
