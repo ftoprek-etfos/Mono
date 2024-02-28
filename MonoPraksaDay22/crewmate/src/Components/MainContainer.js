@@ -31,7 +31,6 @@ export default function MainContainer() {
           setPaging({...paging, totalPages: response.data.pageCount});
         });
       }catch(e){
-        console.warn(e)
         setCrewmates([]);
       }
     };
@@ -46,7 +45,7 @@ export default function MainContainer() {
     setPaging({...paging, pageNumber: paging.pageNumber + 1});
   }
   const handlePageSizeChange = (event) => {
-    setPaging({...paging, pageSize: event.target.value});
+    setPaging({...paging, pageSize: event.target.value, pageNumber: 1});
   };
 
   function previousPage(){

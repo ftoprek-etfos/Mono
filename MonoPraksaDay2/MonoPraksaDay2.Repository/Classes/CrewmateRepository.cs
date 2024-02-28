@@ -175,26 +175,17 @@ namespace MonoPraksaDay2.Repository
                     connection.Open();
                     npgsqlTransaction = connection.BeginTransaction();
 
-                    Guid lastMissionId = Guid.NewGuid();
 
                     if (toEdit.LastMission != null)
                     {
                         if (toEdit.LastMission.Name != crewmate.LastMission.Name)
                         {
-                            command.CommandText = "INSERT INTO \"LastMission\" (\"Id\",\"Name\",\"Duration\") VALUES (@id, @name, @duration)";
-                            command.Parameters.AddWithValue("id", lastMissionId);
-                            command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
-                            command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
-
-                            await command.ExecuteNonQueryAsync();
-                        
-                            command = new NpgsqlCommand();
-                            command.Connection = connection;
-                            command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
-                            command.Parameters.AddWithValue("id", id);
-                            command.Parameters.AddWithValue("lastMissionId", lastMissionId);
-                            await command.ExecuteNonQueryAsync();
+                            await InsertLastMissionAsync(connection, crewmate);
                         }
+                    }
+                    else
+                    {
+                        await InsertLastMissionAsync(connection, crewmate);
                     }
 
 
@@ -400,6 +391,27 @@ namespace MonoPraksaDay2.Repository
             command.Parameters.AddWithValue("crewmateId", crewmateId);
 
             await command.ExecuteNonQueryAsync();
+        }
+
+        async Task InsertLastMissionAsync(NpgsqlConnection connection, Crewmate crewmate)
+        {
+            Guid lastMissionId = Guid.NewGuid();
+            NpgsqlCommand command = new NpgsqlCommand();
+            command.Connection = connection;
+            command.CommandText = "INSERT INTO \"LastMission\" (\"Id\",\"Name\",\"Duration\") VALUES (@id, @name, @duration)";
+            command.Parameters.AddWithValue("id", lastMissionId);
+            command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
+            command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
+
+            await command.ExecuteNonQueryAsync();
+
+            command = new NpgsqlCommand();
+            command.Connection = connection;
+            command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
+            command.Parameters.AddWithValue("id", crewmate.Id);
+            command.Parameters.AddWithValue("lastMissionId", lastMissionId);
+            await command.ExecuteNonQueryAsync();
+
         }
 
         async Task ApplyFilter(StringBuilder sqlQueryBuilder, NpgsqlCommand command, CrewmateFilter crewmateFilter)

@@ -17,11 +17,25 @@ export default class EditCrewmateFormClass extends React.Component{
 
     handleAddExperience = (e) =>
     {
-        this.props.setCrewmateToEdit({...this.props.crewmateToEdit, ["experienceList"]: [...this.props.crewmateToEdit.experienceList, {title: document.forms.addExperienceForm.title.value, duration: document.forms.addExperienceForm.duration.value}]});
+        if(!this.props.crewmateToEdit.experienceList)
+            this.props.setCrewmateToEdit({...this.props.crewmateToEdit, ["experienceList"]: [{title: document.forms.addExperienceForm.title.value, duration: document.forms.addExperienceForm.duration.value}]});
+        else
+            this.props.setCrewmateToEdit({...this.props.crewmateToEdit, ["experienceList"]: [...this.props.crewmateToEdit.experienceList, {title: document.forms.addExperienceForm.title.value, duration: document.forms.addExperienceForm.duration.value}]});
+
         document.forms.addExperienceForm.title.value = '';
         document.forms.addExperienceForm.duration.value = '';
         this.setState({currScreen: "edit"});
     };
+
+    handleSubmit = (e) => {
+        if(!this.props.crewmateToEdit.experienceList)
+        {
+            alert('Please add at least one experience!');
+            e.preventDefault();
+            return;
+        }
+        this.props.applyEditCrewmate();
+    }
     state = {
         currScreen: "edit"
     }
@@ -51,7 +65,7 @@ export default class EditCrewmateFormClass extends React.Component{
                   <label htmlFor="ExperienceList">Experience list:</label>
                   <ExperienceTable experienceList={this.props.crewmateToEdit.experienceList}/>
                   <Button onClick={() => this.setState({currScreen: "addExperience"})} text="Add new experience"/>
-                  <Button onClick={this.props.applyEditCrewmate} text="Edit crewmate"/>
+                  <Button onClick={this.handleSubmit} text="Edit crewmate"/>
                   <Button onClick={() => this.props.setContext("home")} text="Back"/>
                   <br/>
                 </form>
