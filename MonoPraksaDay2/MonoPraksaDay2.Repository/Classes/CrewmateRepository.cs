@@ -64,7 +64,7 @@ namespace MonoPraksaDay2.Repository
             }            
         }
 
-        public async Task<List<Crewmate>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
+        public async Task<PagedList<Crewmate>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
         {
             NpgsqlConnection connection = new NpgsqlConnection(connString);
 
@@ -96,6 +96,7 @@ namespace MonoPraksaDay2.Repository
                     if (!reader.HasRows)
                     {
                         connection.Close();
+                        connection.Dispose();
                         return null;
                     }
 
@@ -119,13 +120,39 @@ namespace MonoPraksaDay2.Repository
                         ));
                     }
                     connection.Close();
-                    return crewList;
+                    connection.Dispose();
+                    PagedList<Crewmate> pagedListOfCrewmates = new PagedList<Crewmate>(crewList, paging.PageSize, await GetCountAsync(crewmateFilter));
+                    return pagedListOfCrewmates;
                 }
             }catch(Exception e)
             {
                 connection.Close();
                 connection.Dispose();
                 return null;
+            }
+        }
+
+        async Task<int> GetCountAsync(CrewmateFilter filter)
+        {
+            NpgsqlConnection connection = new NpgsqlConnection(connString);
+            using (connection)
+            {
+                NpgsqlCommand command = new NpgsqlCommand();
+                command.Connection = connection;
+                StringBuilder querryBuilder = new StringBuilder("SELECT COUNT(*) FROM \"Crewmate\" WHERE 1=1");
+                await ApplyFilter(querryBuilder,command,filter);
+                command.CommandText = querryBuilder.ToString();
+                connection.Open();
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int count))
+                {
+                    connection.Close();
+                    connection.Dispose();
+                    return count;
+                }
+                connection.Close();
+                connection.Dispose();
+                return 0;
             }
         }
 
@@ -310,6 +337,7 @@ namespace MonoPraksaDay2.Repository
             if (!reader.HasRows)
             {
                 connection.Close();
+                connection.Dispose();
                 return null;
             }
 
@@ -322,7 +350,8 @@ namespace MonoPraksaDay2.Repository
                     (int)reader["Duration"]
                     ));
             }
-
+            connection.Close();
+            connection.Dispose();
             return experienceListToReturn;
         }
 

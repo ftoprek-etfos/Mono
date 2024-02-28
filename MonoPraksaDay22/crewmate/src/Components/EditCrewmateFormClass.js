@@ -26,10 +26,11 @@ export default class EditCrewmateFormClass extends React.Component{
         currScreen: "edit"
     }
     render(){
+        this.props.crewmateToEdit.lastMission ? 
         lastMission = {
             name: this.props.crewmateToEdit.lastMission.name,
             duration: this.props.crewmateToEdit.lastMission.duration
-        };
+        } : lastMission = {name: "", duration: ""}
         experienceList = this.props.crewmateToEdit.experienceList;
         switch (this.state.currScreen) {
             case 'edit':
@@ -45,7 +46,7 @@ export default class EditCrewmateFormClass extends React.Component{
                   <input type="number" id="editAge" name="age" value={this.props.crewmateToEdit.age} disabled/>
                   <label htmlFor="lastMission">Last mission:</label>
                   <input type="text" id="editName" name="lastMission.name" value={lastMission.name} required onInput={this.handleInputChange}/>
-                  <label htmlFor="duration">duration:</label>
+                  <label htmlFor="duration">Duration:</label>
                   <input type="number" id="editName" name="lastMission.duration" value={lastMission.duration} required onInput={this.handleInputChange}/>
                   <label htmlFor="ExperienceList">Experience list:</label>
                   <ExperienceTable experienceList={this.props.crewmateToEdit.experienceList}/>

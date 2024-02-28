@@ -6,14 +6,14 @@ body{
     background-image: url('https://cdn.pixabay.com/photo/2023/01/25/21/19/moon-7744608_1280.png');
     background-repeat: repeat-y;
     background-size: cover;
-    color:#E2D989;
-    font-family: "Anta", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0; 
+    color:#E2D989 !important;
+    font-family: "Anta", sans-serif !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 !important; 
 }
 
 table tr:nth-child(odd){background-color: #32055B;}
@@ -26,6 +26,7 @@ table th {
   text-align: center;
   background-color: #32055B;
   color: #E2D989;
+  padding: 10px;
 }
 
 table td {
@@ -48,18 +49,40 @@ table td {
 }
 
 .Button h2{
-    font-size: small;
-    font-weight: 400;
+    font-family: "Anita", sans-serif !important;
+    font-weight: bold !important;
+    font-size: small !important;
+    font-weight: 400 !important;
 }
 
 h2{
-    text-align: center;
+    text-align: center !important;
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
 }
 
 .Button{
+    font-family: "Anita", sans-serif !important;
     text-decoration: none;
     color: #F8E5A3;
 }
+
+.Button h1{
+    font-family: "Anita", sans-serif !important;
+    display: block;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold !important;
+}
+
 
 .Button:hover{
     opacity: 0.5;
@@ -82,4 +105,3 @@ h2{
     margin: 0px;
     margin-top: -10px;
 }
-

@@ -28,15 +28,19 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             Paging paging = new Paging(pageNumber, pageSize);
             Sorting sorting = new Sorting(orderBy, sortOrder);
 
-            List<Crewmate> crewmateList = await CrewmateService.GetCrewmatesAsync(crewmateFilter, paging, sorting);
+            PagedList<Crewmate> crewmateList = await CrewmateService.GetCrewmatesAsync(crewmateFilter, paging, sorting);
 
             if(crewmateList == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, "No crewmates found!");
 
-            List<GetCrewmateViewModel> getCrewmateList = new List<GetCrewmateViewModel>();
-            foreach(Crewmate crewmate in crewmateList)
+            PagedList<GetCrewmateViewModel> getCrewmateList = new PagedList<GetCrewmateViewModel>();
+            getCrewmateList.List = new List<GetCrewmateViewModel>();
+            getCrewmateList.TotalCount = crewmateList.TotalCount;
+            getCrewmateList.PageSize = crewmateList.PageSize;
+            getCrewmateList.PageCount = crewmateList.PageCount;
+            foreach (Crewmate crewmate in crewmateList.List)
             {
-                getCrewmateList.Add(new GetCrewmateViewModel(
+                getCrewmateList.List.Add(new GetCrewmateViewModel(
                     crewmate.Id,
                     crewmate.FirstName,
                     crewmate.LastName,

@@ -22,7 +22,7 @@ namespace Service
             return await CrewmateRepository.GetCrewmateByIdAsync(id);
         }
 
-        public Task<List<Crewmate>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
+        public Task<PagedList<Crewmate>> GetCrewmatesAsync(CrewmateFilter crewmateFilter, Paging paging, Sorting sorting)
         {
             return CrewmateRepository.GetCrewmatesAsync(crewmateFilter, paging, sorting);
         }
