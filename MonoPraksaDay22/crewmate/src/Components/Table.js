@@ -1,14 +1,14 @@
 import TableRow from './TableRow';
-
+import axios from 'axios';
 export default function Table({ crewmates, setCrewmates, editCrewmate, setStatus}) {
 
     function deleteCrewmate(id) {
         const response = window.confirm(`Are you sure you want to delete?`);
         if(!response)return;
 
-        const crewmatesFiltered = crewmates.filter(crewmate => crewmate.id !== id);
-        localStorage.setItem('crewmates', JSON.stringify(crewmatesFiltered));
-        setCrewmates(crewmatesFiltered);
+        axios.delete(`https://localhost:44334/api/Crew/${id}`).then(() => {
+            setCrewmates(crewmates.filter(crewmate => crewmate.id !== id));
+        });
         setStatus("delete");
         setTimeout(() => {
             setStatus("");
@@ -20,9 +20,9 @@ export default function Table({ crewmates, setCrewmates, editCrewmate, setStatus
         <table className="crewmateList">
         <thead>
             <tr>
-                <th>Name</th>
+                <th>First name</th>
+                <th>Last name</th>
                 <th>Age</th>
-                <th>Role</th>
                 <th>Actions</th>
             </tr>
         </thead>

@@ -2,6 +2,7 @@
 using Autofac.Integration.WebApi;
 using MonoPraksaDay2.Repository;
 using MonoPraksaDay2.WebAPI.Controllers;
+using Newtonsoft.Json.Serialization;
 using Repository.Common;
 using Service;
 using Service.Common;
@@ -34,6 +35,9 @@ namespace MonoPraksaDay2.WebAPI
             var builder = new ContainerBuilder();
             var config = GlobalConfiguration.Configuration;
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
+            var json = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
+            json.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
 
             builder.RegisterType<CrewmateService>()
                    .As<IServiceCommon>()

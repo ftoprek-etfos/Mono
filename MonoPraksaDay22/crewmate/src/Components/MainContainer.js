@@ -1,17 +1,23 @@
 import Button from './/Button';
 import StatusText from './StatusText';
 import Table from './Table';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddCrewmateForm from './AddCrewmateForm';
 import EditCrewmateFormClass from './EditCrewmateFormClass';
-import {v4 as uuidv4} from 'uuid';
+import axios from 'axios';
 
 export default function MainContainer() {
-  const [crewmates, setCrewmates] = useState(localStorage.getItem('crewmates') ? JSON.parse(localStorage.getItem('crewmates')) : []);
+  const [crewmates, setCrewmates] = useState([]);
   const [isShowing, setShowing] = useState(false);
   const [context, setContext] = useState("home");
   const [crewmateToEdit, setCrewmateToEdit] = useState({});
   const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    axios.get('https://localhost:44334/api/Crew').then((response) => {
+      setCrewmates(response.data);
+    });
+  }, [status]);
 
   const renderContent = () => {
     switch (context) {
@@ -39,20 +45,18 @@ export default function MainContainer() {
   };
 
   function addCrewmates() {
-    if(window.document.forms.addCrewmateForm.name.value === '' || window.document.forms.addCrewmateForm.age.value === '' || window.document.forms.addCrewmateForm.role.value === '')
+    if(window.document.forms.addCrewmateForm.firstName.value === '' || window.document.forms.addCrewmateForm.lastName.value === '' || window.document.forms.addCrewmateForm.age.value === '')
     {
         alert('Please fill all the fields!');
         return;
     }
     const crewmate = {
-        id: uuidv4(),
-        name: window.document.forms.addCrewmateForm.name.value,
-        age: window.document.forms.addCrewmateForm.age.value,
-        role: window.document.forms.addCrewmateForm.role.value
-    }
-
-    window.localStorage.setItem('crewmates', JSON.stringify([...crewmates, crewmate]));
-    setCrewmates([...crewmates, crewmate]);
+        firstName: window.document.forms.addCrewmateForm.firstName.value,
+        lastName: window.document.forms.addCrewmateForm.lastName.value,
+        age: window.document.forms.addCrewmateForm.age.value
+      }
+    axios.post('https://localhost:44334/api/Crew', crewmate).then((response) => {
+    });
     setContext("home");
     setStatus("add");
     setTimeout(() => {
@@ -60,19 +64,28 @@ export default function MainContainer() {
       }, 2000);
   }
 
-  function editCrewmate(id) {
-        const crewmateToEdit = crewmates.find(crewmate => crewmate.id === id);
-        setCrewmateToEdit(crewmateToEdit);
+  async function editCrewmate(id) {
+        await axios.get(`https://localhost:44334/api/Crew/${id}`).then((response) => {
+            setCrewmateToEdit(response.data);
+        });
         setContext("edit");
   }
 
   function applyEditCrewmate() {
         let crewmateList = crewmates.filter(crewmate => crewmate.id !== crewmateToEdit.id);
-        crewmateToEdit.name = window.document.forms.editCrewmateForm.name.value;
-        crewmateToEdit.age = window.document.forms.editCrewmateForm.age.value;
-        crewmateToEdit.role = window.document.forms.editCrewmateForm.role.value;
         setCrewmates([...crewmateList, crewmateToEdit]);
-        window.localStorage.setItem('crewmates', JSON.stringify([...crewmateList, crewmateToEdit]));
+
+        const putCrewmateInfo = {
+          lastMission: {
+            name: crewmateToEdit.lastMission.name,
+            duration: crewmateToEdit.lastMission.duration
+          },
+          experienceList: crewmateToEdit.experienceList.map((experience) => {
+            const { id, ...restOfExperience } = experience;
+            return restOfExperience;
+          })
+        };
+        axios.put(`https://localhost:44334/api/Crew/${crewmateToEdit.id}`, putCrewmateInfo);
         setContext("home");
         setStatus("edit");
         setTimeout(() => {

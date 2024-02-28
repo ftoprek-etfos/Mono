@@ -10,14 +10,16 @@ namespace MonoPraksaDay2.WebAPI.Models
 {
     public class GetCrewmateViewModel
     {
+        public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int Age { get; set; }
 #nullable enable
         public ILastMissionViewModel? LastMission { get; set; } = default;
         public List<IExperienceViewModel>? ExperienceList { get; set; }
-        public GetCrewmateViewModel(string firstName, string lastName, int age, ILastMissionViewModel? lastMissionViewModel, List<IExperienceViewModel>? experienceViewModels)
+        public GetCrewmateViewModel(Guid id, string firstName, string lastName, int age, ILastMissionViewModel? lastMissionViewModel, List<IExperienceViewModel>? experienceViewModels)
         {
+            this.Id = id;
             this.Age = age;
             this.FirstName = firstName;
             this.LastName = lastName;

@@ -37,6 +37,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             foreach(Crewmate crewmate in crewmateList)
             {
                 getCrewmateList.Add(new GetCrewmateViewModel(
+                    crewmate.Id,
                     crewmate.FirstName,
                     crewmate.LastName,
                     crewmate.Age,
@@ -57,7 +58,7 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             if (crewmate == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound, $"Crewmate not found under id {id}!");
 
-            GetCrewmateViewModel getCrewmate = new GetCrewmateViewModel(crewmate.FirstName, crewmate.LastName, crewmate.Age, crewmate.LastMission, crewmate.ExperienceList);
+            GetCrewmateViewModel getCrewmate = new GetCrewmateViewModel(crewmate.Id, crewmate.FirstName, crewmate.LastName, crewmate.Age, crewmate.LastMission, crewmate.ExperienceList);
 
             return Request.CreateResponse(HttpStatusCode.OK, getCrewmate);
         }

@@ -15,7 +15,7 @@ namespace MonoPraksaDay2.Repository
 {
     public class CrewmateRepository : IRepositoryCommon
     {
-        static readonly string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=admin;";
+        static readonly string connString = "Host=localhost;Port=5432;Database=CrewmateDB;Username=postgres;Password=postgres;";
         public async Task<Crewmate> GetCrewmateByIdAsync(Guid id)
         {
             if (id == null)
@@ -118,7 +118,7 @@ namespace MonoPraksaDay2.Repository
                             await GetExperienceListByIdAsync((Guid)reader["Id"], connString)
                         ));
                     }
-
+                    connection.Close();
                     return crewList;
                 }
             }catch(Exception e)
@@ -160,24 +160,16 @@ namespace MonoPraksaDay2.Repository
                             command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
 
                             await command.ExecuteNonQueryAsync();
+                        
+                            command = new NpgsqlCommand();
+                            command.Connection = connection;
+                            command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
+                            command.Parameters.AddWithValue("id", id);
+                            command.Parameters.AddWithValue("lastMissionId", lastMissionId);
+                            await command.ExecuteNonQueryAsync();
                         }
-                    }else
-                    {
-                        command.CommandText = "INSERT INTO \"LastMission\" (\"Id\",\"Name\",\"Duration\") VALUES (@id, @name, @duration)";
-                        command.Parameters.AddWithValue("id", lastMissionId);
-                        command.Parameters.AddWithValue("name", crewmate.LastMission.Name);
-                        command.Parameters.AddWithValue("duration", crewmate.LastMission.Duration);
-
-                        await command.ExecuteNonQueryAsync();
                     }
 
-
-                    command = new NpgsqlCommand();
-                    command.Connection = connection;
-                    command.CommandText = "UPDATE \"Crewmate\" SET \"LastMissionId\" = @lastMissionId WHERE \"Crewmate\".\"Id\" = @id";
-                    command.Parameters.AddWithValue("id", id);
-                    command.Parameters.AddWithValue("lastMissionId", lastMissionId);
-                    await command.ExecuteNonQueryAsync();
 
                     List<ExperienceViewModel> experienceList = await GetExperienceListByIdAsync(id, connString);
                     if (experienceList == null)
@@ -192,25 +184,25 @@ namespace MonoPraksaDay2.Repository
                         return 1;
                     }
 
-                    foreach (ExperienceViewModel experience in experienceList)
+                    foreach (ExperienceViewModel experience in crewmate.ExperienceList)
                     {
-                        var matchingExperience = crewmate.ExperienceList.FirstOrDefault(exp => exp.Title == experience.Title);
+                        var matchingExperience = experienceList.FirstOrDefault(exp => exp.Title == experience.Title);
 
-                        if (experience.Title == matchingExperience.Title && experience.Duration != matchingExperience.Duration)
+                        if (matchingExperience != null && experience.Title == matchingExperience.Title && experience.Duration != matchingExperience.Duration)
                         {
                             command = new NpgsqlCommand();
                             command.Connection = connection;
                             command.CommandText = "UPDATE \"Experience\" SET \"Duration\" = @duration WHERE \"Experience\".\"Id\" = @id";
 
                             command.Parameters.AddWithValue("id", experience.Id);
-                            command.Parameters.AddWithValue("duration", matchingExperience.Duration);
+                            command.Parameters.AddWithValue("duration", experience.Duration);
 
                             await command.ExecuteNonQueryAsync();
 
                         }
-                        else if (experience.Title != matchingExperience.Title && experience.Duration != matchingExperience.Duration)
+                        else if (matchingExperience == null)
                         {
-                            await InsertExperienceAsync(connection, id, matchingExperience);
+                            await InsertExperienceAsync(connection, id, experience);
                         }
                     }
                     npgsqlTransaction.Commit();
