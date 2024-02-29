@@ -3,13 +3,13 @@ import HomePage from './Pages/HomePage';
 import EditPage from './Pages/EditPage';
 import {
   createBrowserRouter,
-  RouterProvider,
-  Link
+  RouterProvider
 } from "react-router-dom";
 import AddPage from './Pages/AddPage';
 import EditExperiencePage from './Pages/EditExperiencePage';
 import { Outlet } from 'react-router-dom';
 import ListPage from './Pages/ListPage';
+import NotFoundPage from './Pages/NotFoundPage';
 
 
 function App() {
@@ -53,7 +53,7 @@ function App() {
     {
       path: "*",
       element: (
-        <h1>404 Not Found</h1>
+        <NotFoundPage/>
       )
     }
   ]);
