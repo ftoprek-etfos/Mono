@@ -20,12 +20,10 @@ export default function MainContainer() {
   const [showFIlters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    let url = `https://localhost:44334/api/Crew?pageNumber=${paging.pageNumber}&pageSize=${paging.pageSize}&orderBy=${sorting.orderBy}&sortOrder=${sorting.sortOrder}`;
-    if(filters.firstName !== "") url += `&firstName=${filters.firstName}`;
-    if(filters.lastName !== "") url += `&lastName=${filters.lastName}`;
-    if(filters.age !== "") url += `&age=${filters.age}`;
+
     const fetchData = async () => {
       try{
+        let url = applyFilters();
         await axios.get(url).then((response) => {
           setCrewmates(response.data.list);
           setPaging({...paging, totalPages: response.data.pageCount});
@@ -39,6 +37,14 @@ export default function MainContainer() {
     }, 500);
     return () => clearTimeout(delaySearch);
   }, [status, paging.pageNumber, paging.pageSize, sorting, filters]);
+
+  const applyFilters = () => {
+    let url = `https://localhost:44334/api/Crew?pageNumber=${paging.pageNumber}&pageSize=${paging.pageSize}&orderBy=${sorting.orderBy}&sortOrder=${sorting.sortOrder}`;
+    if(filters.firstName !== "") url += `&firstName=${filters.firstName}`;
+    if(filters.lastName !== "") url += `&lastName=${filters.lastName}`;
+    if(filters.age !== "") url += `&age=${filters.age}`;
+    return url;
+  };
 
   function nextPage() {
     if(paging.totalPages === paging.pageNumber) return;
@@ -121,17 +127,8 @@ export default function MainContainer() {
     }
   };
 
-  function addCrewmates() {
-    if(window.document.forms.addCrewmateForm.firstName.value === '' || window.document.forms.addCrewmateForm.lastName.value === '' || window.document.forms.addCrewmateForm.age.value === '')
-    {
-        alert('Please fill all the fields!');
-        return;
-    }
-    const crewmate = {
-        firstName: window.document.forms.addCrewmateForm.firstName.value,
-        lastName: window.document.forms.addCrewmateForm.lastName.value,
-        age: window.document.forms.addCrewmateForm.age.value
-      }
+  function addCrewmates(crewmate) {
+    
     axios.post('https://localhost:44334/api/Crew', crewmate);
     setContext("home");
     setStatus("add");
