@@ -10,6 +10,7 @@ using Repository.Common;
 using Model.Common;
 using MonoPraksaDay2.Common;
 using System.Data;
+using System.Runtime.Remoting.Messaging;
 
 namespace MonoPraksaDay2.Repository
 {
@@ -176,16 +177,12 @@ namespace MonoPraksaDay2.Repository
                     npgsqlTransaction = connection.BeginTransaction();
 
 
-                    if (toEdit.LastMission != null)
+                    if (crewmate.LastMission != null)
                     {
                         if (toEdit.LastMission.Name != crewmate.LastMission.Name)
                         {
                             await InsertLastMissionAsync(connection, crewmate);
                         }
-                    }
-                    else
-                    {
-                        await InsertLastMissionAsync(connection, crewmate);
                     }
 
 
@@ -308,6 +305,40 @@ namespace MonoPraksaDay2.Repository
                 return -1;
             }
 
+        }
+
+        public async Task<List<LastMissionViewModel>> GetLastMissionListAsync()
+        {
+            NpgsqlConnection connection = new NpgsqlConnection(connString);
+            using (connection)
+            {
+                NpgsqlCommand command = new NpgsqlCommand();
+                command.Connection = connection;
+                command.CommandText = "SELECT * FROM \"LastMission\"";
+                connection.Open();
+                NpgsqlDataReader reader = await command.ExecuteReaderAsync();
+
+                if (!reader.HasRows)
+                {
+                    connection.Close();
+                    connection.Dispose();
+                    return null;
+                }
+
+                List<LastMissionViewModel> missionList = new List<LastMissionViewModel>();
+
+                while (reader.Read())
+                {
+                    missionList.Add(new LastMissionViewModel(
+                        (Guid)reader["Id"],
+                        (string)reader["Name"],
+                        (int)reader["Duration"]
+                        ));
+                }
+                connection.Close();
+                connection.Dispose();
+                return missionList;
+            }
         }
 
         async Task<List<ExperienceViewModel>> GetExperienceListByIdAsync(Guid id, string connString)
@@ -440,5 +471,6 @@ namespace MonoPraksaDay2.Repository
                 command.Parameters.AddWithValue("lastMissionId", crewmateFilter.LastMissionId);
             }
         }
+
     }
 }

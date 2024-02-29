@@ -13,6 +13,6 @@ namespace Repository.Common
         public Task<int> PutCrewmateAsync(Guid id, Crewmate crewmate);
         public Task<int> DeleteCrewmateAsync(Guid id);
         public Task<int> PostCrewmateAsync(Crewmate crewmate);
-
+        public Task<List<LastMissionViewModel>> GetLastMissionListAsync();
     }
 }

@@ -1,18 +1,15 @@
+import CrewmateService from '../Services/CrewmateService';
 import TableRow from './TableRow';
 import axios from 'axios';
-export default function Table({ crewmates, setCrewmates, editCrewmate, setStatus}) {
+export default function Table({ crewmates, fetchData, isLoading}) {
 
-    function deleteCrewmate(id) {
+    async function deleteCrewmate(id) {
         const response = window.confirm(`Are you sure you want to delete?`);
         if(!response)return;
 
-        axios.delete(`https://localhost:44334/api/Crew/${id}`).then(() => {
-            setCrewmates(crewmates.filter(crewmate => crewmate.id !== id));
+        await CrewmateService.deleteCrewmate(id).then(() => {
+            fetchData();
         });
-        setStatus("delete");
-        setTimeout(() => {
-            setStatus("");
-          }, 2000);
     }
     return (
         crewmates.length > 0 ? (
@@ -26,11 +23,11 @@ export default function Table({ crewmates, setCrewmates, editCrewmate, setStatus
             </tr>
         </thead>
         <tbody>
-        { crewmates.map(crewmate => <TableRow key={crewmate.id} crewmate={crewmate} editCrewmate={editCrewmate} deleteCrewmate={deleteCrewmate} />)}
+        { crewmates.map(crewmate => <TableRow key={crewmate.id} crewmate={crewmate} deleteCrewmate={deleteCrewmate} />)}
         </tbody>
         </table>) : (
             <tr>
-                <td>No crewmates found!</td>
+                {isLoading ? <td>Loading...</td> : <td>No crewmates found!</td>}
             </tr>
         )
     );

@@ -67,6 +67,18 @@ namespace MonoPraksaDay2.WebAPI.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, getCrewmate);
         }
 
+        [HttpGet]
+        [Route("Api/Crew/Missions")]
+        public async Task<HttpResponseMessage> GetMissionListAsync()
+        {
+            List<LastMissionViewModel> lastMissionList = null;
+            lastMissionList = await CrewmateService.GetLastMissionListAsync();
+
+            if (lastMissionList == null)
+                return Request.CreateResponse(HttpStatusCode.NotFound, $"List not found!");
+            return Request.CreateResponse(HttpStatusCode.OK, lastMissionList);
+        }
+
 
         // POST: api/Crew
         [HttpPost]

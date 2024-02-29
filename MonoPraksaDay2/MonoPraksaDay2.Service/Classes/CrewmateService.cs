@@ -41,5 +41,11 @@ namespace Service
         {
             return CrewmateRepository.PostCrewmateAsync(crewmate);
         }
+
+        public Task<List<LastMissionViewModel>> GetLastMissionListAsync()
+        {
+            return CrewmateRepository.GetLastMissionListAsync();
+        }
+
     }
 }
